@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: training-server
+  labels:
+    app: training-server
+spec:
+  replicas: 5
+  template:
+    metadata:
+      name: training-server
+      labels:
+        app: training-server
+    spec:
+      schedulerName: thundering-herd-scheduler
+      containers:
+        - name: nginx
+          image: daspawnw/training-server:latest
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: "/health"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: "/health"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: training-server

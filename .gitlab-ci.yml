@@ -1,0 +1,56 @@
+stages:
+  - build
+  - test
+  - docker-release
+  - docker-master
+
+compile:
+  image: golang:latest
+  stage: build
+  script:
+    - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/thundering-herd-scheduler-linux-amd64 ./cmd/thundering-herd-scheduler
+
+test:
+  image: golang:latest
+  stage: test
+  script:
+    - go test ./...
+
+sonar:
+  image: golang:1.17-bullseye
+  stage: test
+  script:
+    - go test -coverprofile=coverage.out ./...
+    - curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+    - apt update && apt install unzip -y
+    - unzip sonar-scanner.zip
+    - ./sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner -Dsonar.login=${SONAR_TOKEN} -Dsonar.branch.name=${CI_COMMIT_BRANCH} -Dsonar.host.url=${SONAR_URL}
+
+## hack for non existing buildx in official docker images
+.docker_buildx_template: &docker_buildx_template
+  image: jdrouet/docker-with-buildx:stable
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
+    - docker buildx create --use
+    - docker buildx build
+        --cache-from type=registry,ref=$CI_REGISTRY_IMAGE:cache
+        --cache-to type=registry,ref=$CI_REGISTRY_IMAGE:cache
+        --platform linux/arm/v7,linux/arm64/v8,linux/amd64
+        --build-arg RELEASE_VERSION=${DOCKER_TAG}
+        --tag $CI_REGISTRY_IMAGE:${DOCKER_TAG}
+        --push .
+docker_snapshot:
+  stage: docker-master
+  variables:
+    DOCKER_TAG: "${CI_COMMIT_SHA}"
+  <<: *docker_buildx_template
+  only:
+    - master
+
+docker_release:
+  stage: docker-release
+  variables:
+    DOCKER_TAG: "${CI_COMMIT_TAG}"
+  <<: *docker_buildx_template
+  only:
+    - tags

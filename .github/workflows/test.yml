@@ -1,0 +1,41 @@
+on: [push, pull_request]
+name: Test
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.17.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+        id: go
+
+      - name: Cache Go modules packages
+        uses: actions/cache@v2.1.7
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Go modules
+        run: go mod download
+        env:
+          GOPROXY: https://proxy.golang.org
+
+#      TODO: enable as soon as public
+#      - name: Initialize CodeQL
+#        uses: github/codeql-action/init@v1
+
+      - name: Build
+        run: go build ./cmd/thundering-herd-scheduler
+
+#      TODO: enable as soon as public
+#      - name: Perform CodeQL Analysis
+#        uses: github/codeql-action/analyze@v1
+
+      - name: Test
+        run: go test ./...

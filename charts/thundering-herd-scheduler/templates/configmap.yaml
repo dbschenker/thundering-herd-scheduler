@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+data:
+  kube-scheduler.yaml: |
+    apiVersion: kubescheduler.config.k8s.io/v1beta1
+    kind: KubeSchedulerConfiguration
+    clientConnection:
+    #  kubeconfig: "/var/lib/kubernetes/kube-scheduler.kubeconfig"
+      qps: {{ .Values.scheduler.qps }}
+      burst: {{ .Values.scheduler.burst }}
+    leaderElection:
+      leaderElect: true
+      resourceName: {{ include "thundering-herd-scheduler.fullname" . }}
+      resourceNamespace: {{ .Release.Namespace }}
+    profiles:
+      - schedulerName: thundering-herd-scheduler
+        plugins:
+          permit:
+            enabled:
+              - name: ThunderingHerdScheduling
+            disabled:
+              - name: "*"
+        pluginConfig:
+          - name: ThunderingHerdScheduling
+            args:
+              parallelStartingPodsPerNode: {{ .Values.scheduler.pluginConfig.parallelStartingPodsPerNode }}
+              timeoutSeconds: {{ .Values.scheduler.pluginConfig.timeoutSeconds }}
+              maxRetries: {{ .Values.scheduler.pluginConfig.maxRetries }}

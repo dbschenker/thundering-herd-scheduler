@@ -1,0 +1,109 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-lease-holder
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resourceNames:
+      - {{ include "thundering-herd-scheduler.fullname" . }}
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-as-lease-holder
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-lease-holder
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-as-extension-apiserver-authentication-reader
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-as-kube-scheduler
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: system:kube-scheduler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-as-volume-scheduler
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: system:volume-scheduler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-pod-patch
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-as-pod-patch
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "thundering-herd-scheduler.fullname" . }}-pod-patch
+  apiGroup: rbac.authorization.k8s.io

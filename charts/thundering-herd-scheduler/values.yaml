@@ -1,0 +1,100 @@
+scheduler:
+  # -- Thundering-herd-scheduler logging level
+  logLevel: 1
+  # -- qps rate limiter setting
+  qps: 30
+  # -- burst rate limiter setting
+  burst: 60
+  pluginConfig:
+    # -- How many pods should get scheduled in parallel before pods are moved into waiting state
+    parallelStartingPodsPerNode: 3
+    # -- Based on how many times the pod was attempted to be scheduled using the scheduler, a wait is implemented with the following rule timeoutSeconds^2 * retries
+    timeoutSeconds: 5
+    # -- How many times a pod can run through the process before it anyway get's scheduled
+    maxRetries: 5
+# -- Thundering-herd-scheduler replcia count. By default it is set to 3.
+replicaCount: 3
+
+# -- Thundering-herd-scheduler container image settings
+image:
+  # TODO Update to target image registry
+  # -- Registry address
+  repository: "TODO"
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # TODO Update to target image version
+  # -- Image tag. Overrides the image tag whose default is the chart appVersion.
+  tag: "v0.1.1"
+
+# -- Map with names of image pull secrets
+imagePullSecrets: []
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Name override
+nameOverride: ""
+# -- Full name override
+fullnameOverride: ""
+
+# -- Pod annotations
+podAnnotations:
+  prometheus.io/port: "10251"
+  prometheus.io/scheme: http
+  prometheus.io/scrape: "true"
+# -- Pod securoty context
+podSecurityContext: {}
+
+# -- Security context settings
+securityContext:
+  privileged: false
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsUser: 1000
+
+# -- Resource limit and request settings
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 250m
+    memory: 768Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi
+
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Afinity for pods
+affinity: {}
+
+podDisruptionBudget:
+  #  maxUnavailable: 1
+  # -- Pod disruption budget - minAvailable. Enforces that at least one pod is available.
+  minAvailable: 1
+  # -- Controls if PodDisruptionBadget object is created
+  enabled: true
+
+# -- Pod's topology spread constraint settings.
+topologySpreadConstraints: {}
+#  - maxSkew: 2 # one zone can have 2 pods, other 1, and last 0
+#    topologyKey: topology.kubernetes.io/zone
+#    whenUnsatisfiable: DoNotSchedule
+#    labelSelector:
+#      matchLabels:
+#        "app.kubernetes.io/name": thundering-herd-scheduler

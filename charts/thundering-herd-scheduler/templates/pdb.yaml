@@ -1,0 +1,32 @@
+{{- if and (ge (.Values.replicaCount | int64) 2) .Values.podDisruptionBudget.enabled }}
+{{- if and .Values.podDisruptionBudget.minAvailable .Values.podDisruptionBudget.maxUnavailable }}
+{{- required "you can't define minAvailable and maxUnavailable at the same time for a pod disruption budget" "" }}
+{{- end }}
+
+{{- if and (not .Values.podDisruptionBudget.minAvailable) (not .Values.podDisruptionBudget.maxUnavailable)}}
+{{- required "You have to define one of minAvailable or maxUnavailable." "" }}
+{{- end }}
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+  labels:
+  {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  {{ if ge .Values.podDisruptionBudget.minAvailable .Values.replicaCount }}
+  {{- required "you can't define minAvailable in a pod disruption budget to be equal or greater then replicas, valid values are < replicas - 1" "" }}
+  {{ end }}
+
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- end }}
+
+  {{- if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "thundering-herd-scheduler.serviceAccountName" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- end }}

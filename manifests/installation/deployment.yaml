@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: thundering-herd-scheduler
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: thundering-herd-scheduler-lease-holder
+  namespace: kube-system
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resourceNames:
+      - thundering-herd-scheduler
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: thundering-herd-scheduler-as-extension-apiserver-authentication-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - kind: ServiceAccount
+    name: thundering-herd-scheduler
+    namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: thundering-herd-scheduler-as-lease-holder
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: thundering-herd-scheduler
+    namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: thundering-herd-scheduler-lease-holder
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: thundering-herd-scheduler-as-kube-scheduler
+subjects:
+  - kind: ServiceAccount
+    name: thundering-herd-scheduler
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: system:kube-scheduler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: thundering-herd-scheduler-as-volume-scheduler
+subjects:
+  - kind: ServiceAccount
+    name: thundering-herd-scheduler
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: system:volume-scheduler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thundering-herd-scheduler-config
+  namespace: kube-system
+data:
+  scheduler-config.yaml: |
+    apiVersion: kubescheduler.config.k8s.io/v1beta1
+    kind: KubeSchedulerConfiguration
+    leaderElection:
+      leaderElect: true
+      resourceName: thundering-herd-scheduler
+    profiles:
+      - schedulerName: thundering-herd-scheduler
+        plugins:
+          permit:
+            enabled:
+              - name: ThunderingHerdScheduling
+            disabled:
+              - name: "*"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thundering-herd-scheduler
+  namespace: kube-system
+  labels:
+    app: thundering-herd-scheduler
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: thundering-herd-scheduler
+      labels:
+        app: thundering-herd-scheduler
+    spec:
+      serviceAccountName: thundering-herd-scheduler
+      containers:
+        - name: thundering-herd-scheduler
+          image: "" ## TODO: please add here your docker image
+          command:
+            - /thundering-herd-scheduler
+            - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 10259
+              scheme: HTTPS
+            initialDelaySeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 10259
+              scheme: HTTPS
+          securityContext:
+            privileged: false
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/kubernetes/thundering-herd-scheduler
+      restartPolicy: Always
+      hostNetwork: false
+      hostPID: false
+      volumes:
+        - name: config-volume
+          configMap:
+            name: thundering-herd-scheduler-config
+      imagePullSecrets: []  ## TODO: Potentially also add here your image pull secret placed inside kube-system namespace
+  selector:
+    matchLabels:
+      app: thundering-herd-scheduler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: thundering-herd-scheduler-pod-patch
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: thundering-herd-scheduler-as-pod-patch
+subjects:
+  - kind: ServiceAccount
+    name: thundering-herd-scheduler
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: thundering-herd-scheduler-pod-patch
+  apiGroup: rbac.authorization.k8s.io

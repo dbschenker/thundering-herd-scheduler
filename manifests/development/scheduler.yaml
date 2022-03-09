@@ -1,0 +1,22 @@
+apiVersion: kubescheduler.config.k8s.io/v1beta1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  # TODO: please specify path to kubeconfig here
+  kubeconfig: "deployment/config"
+leaderElection:
+  leaderElect: true
+  resourceName: thundering-herd-scheduler
+profiles:
+  - schedulerName: thundering-herd-scheduler
+    plugins:
+      permit:
+        enabled:
+          - name: ThunderingHerdScheduling
+        disabled:
+          - name: "*"
+    pluginConfig:
+      - name: ThunderingHerdScheduling
+        args:
+          parallelStartingPodsPerNode: 3
+#          timeoutSeconds: 5
+#          maxRetries: 5
