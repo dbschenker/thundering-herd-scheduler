@@ -2,6 +2,10 @@ on: [push, pull_request]
 name: Test
 jobs:
   test:
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
+        os: [linux, darwin]
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.17.x
@@ -31,7 +35,7 @@ jobs:
 #        uses: github/codeql-action/init@v1
 
       - name: Build
-        run: go build ./cmd/thundering-herd-scheduler
+        run: go build GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} ./cmd/thundering-herd-scheduler -o thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }}
 
 #      TODO: enable as soon as public
 #      - name: Perform CodeQL Analysis
