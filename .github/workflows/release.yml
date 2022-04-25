@@ -9,6 +9,8 @@ name: Release
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    outputs:
+      releaseUploadUrl: ${{ steps.create_release.outputs.upload_url }]
     steps:
     - name: Create Release
       id: create_release
@@ -29,13 +31,15 @@ jobs:
         architecture: [amd64, arm64]
         os: [linux, darwin]
     runs-on: ubuntu-latest
+    needs:
+    - create-release
     steps:
     - name: Upload Release Asset ${{ matrix.os }} ${{ matrix.architecture }}
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create-release.outputs.releaseUploadUrl }}
         asset_path: bin/thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
         asset_name: thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
         asset_content_type: application/x-executable
