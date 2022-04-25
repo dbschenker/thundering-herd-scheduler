@@ -1,7 +1,7 @@
 on: [push, pull_request]
-name: Test
+name: Build and test
 jobs:
-  test:
+  build:
     strategy:
       matrix:
         architecture: [amd64, arm64]
