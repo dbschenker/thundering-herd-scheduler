@@ -1,17 +1,18 @@
 name: Build docker image
 
 on:
-  push:
-    branches:
-      - 'main'
-      - 'release-*'
-      - 'actions'
-    tags:
-      - 'v*.*-*'
-  pull_request:
-    branches:
-      - 'main'
-      - 'release-*'
+  workflow_call:
+#  push:
+#    branches:
+#      - 'main'
+#      - 'release-*'
+#      - 'actions'
+#    tags:
+#      - 'v*.*-*'
+#  pull_request:
+#    branches:
+#      - 'main'
+#      - 'release-*'
 
 env:
   # Use docker.io for Docker Hub if empty
