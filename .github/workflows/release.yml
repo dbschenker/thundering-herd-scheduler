@@ -1,10 +1,7 @@
 on:
   push:
-    branches-ignore:
-      - "main"
-      - "release-*"
-  pull_request:
-  workflow_call:
+    tags:
+      - "v-*.*-*"
 name: Release
 jobs:
   create-release:
