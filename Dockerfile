@@ -7,7 +7,8 @@ RUN apk add --update ca-certificates
 
 WORKDIR /go/src/github.com/dbschenker/thundering-herd-scheduler
 COPY . ./
-ARG TARGETOS TARGETARCH
+ARG TARGETOS
+ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-X 'main.VERSION=${RELEASE_VERSION}'" -o bin/thundering-herd-scheduler ./cmd/thundering-herd-scheduler
 
 FROM scratch
