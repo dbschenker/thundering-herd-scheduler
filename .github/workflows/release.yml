@@ -37,6 +37,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.releaseUploadUrl }}
-        asset_path: bin/thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
-        asset_name: thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
+        asset_path: bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }}
+        asset_name: thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }}
         asset_content_type: application/x-executable
