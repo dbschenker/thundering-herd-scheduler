@@ -1,0 +1,41 @@
+on:
+  push:
+    branches-ignore:
+      - "main"
+      - "release-*"
+  pull_request:
+  workflow_call:
+name: Release
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        body: |
+          Build also available as docker image:
+          `ghcr.io/dbschenker/thundering-herd-scheduler:${{ github.ref }}`
+  upload-artifacts:
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
+        os: [linux, darwin]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload Release Asset ${{ matrix.os }} ${{ matrix.architecture }}
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: bin/thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
+        asset_name: thundering-herd-scheduler-${{ matrix.os }} ${{ matrix.architecture }}
+        asset_content_type: application/x-executable

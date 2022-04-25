@@ -1,4 +1,10 @@
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - "main"
+      - "release-*"
+  pull_request:
+  workflow_call:
 name: Build and test
 jobs:
   build:
