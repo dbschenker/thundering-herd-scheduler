@@ -8,8 +8,9 @@ on:
     tags:
       - 'v*.*-*'
   pull_request:
-    - 'main'
-    - 'release-*'
+    branches:
+      - 'main'
+      - 'release-*'
 
 env:
   # Use docker.io for Docker Hub if empty
