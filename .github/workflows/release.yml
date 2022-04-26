@@ -24,3 +24,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: bin/thundering-herd-scheduler*
+        append_body: true
+        body: |
+          Build also available as docker image:
+          `${{ github.repository }}:${{ github.ref_name }}`
