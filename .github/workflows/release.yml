@@ -17,7 +17,8 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: thundering-herd-scheduler-binaries
+        path: ~/bin
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: bin/thundering-herd-scheduler*
+        files: ~/bin/thundering-herd-scheduler*
