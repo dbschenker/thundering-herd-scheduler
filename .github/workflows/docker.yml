@@ -2,10 +2,10 @@ name: Build docker image
 
 on:
   workflow_call:
-  push:
-    branches:
-      - '*'
-  pull_request:
+#  push:
+#    branches:
+#      - '*'
+#  pull_request:
 
 env:
   # Use docker.io for Docker Hub if empty
