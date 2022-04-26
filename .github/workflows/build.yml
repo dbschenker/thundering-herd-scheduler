@@ -1,9 +1,8 @@
 on:
-#  push:
-#    branches-ignore:
-#      - "main"
-#      - "release-*"
-#  pull_request:
+  push:
+    branches:
+      - "*"
+  pull_request:
   workflow_call:
 
 name: Build and test
@@ -42,7 +41,7 @@ jobs:
 #        uses: github/codeql-action/init@v1
 
       - name: Build
-        run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build -o thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
+        run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
 #      TODO: enable as soon as public
 #      - name: Perform CodeQL Analysis
@@ -50,3 +49,11 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+  upload-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact@v3
+        with:
+          name: thundering-herd-scheduler-binaries
+          path: bin/thundering-herd-scheduler-*

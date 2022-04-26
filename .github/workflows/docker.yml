@@ -2,8 +2,10 @@ name: Build docker image
 
 on:
   workflow_call:
-#  push:
-#    branches:
+  push:
+    branches:
+      - '*'
+    pull_request:
 #      - 'main'
 #      - 'release-*'
 #      - 'actions'
