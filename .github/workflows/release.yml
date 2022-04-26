@@ -5,9 +5,9 @@ on:
 name: Release
 jobs:
   docker-build:
-    uses: ./.github/workflows/docker
+    uses: ./.github/workflows/docker.yml
   build-and-test:
-    uses: ./.github/workflows/build
+    uses: ./.github/workflows/build.yml
   create-release:
     needs:
       - docker-build
