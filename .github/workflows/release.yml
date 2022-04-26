@@ -4,7 +4,14 @@ on:
       - "v*.*-*"
 name: Release
 jobs:
+  docker-build:
+    uses: ./.github/workflows/docker
+  build-and-test:
+    uses: ./.github/workflows/build
   create-release:
+    needs:
+      - docker-build
+      - build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v3
