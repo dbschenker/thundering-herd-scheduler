@@ -115,7 +115,7 @@ spec:
       serviceAccountName: thundering-herd-scheduler
       containers:
         - name: thundering-herd-scheduler
-          image: "" ## TODO: please add here your docker image
+          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.21-0"
           command:
             - /thundering-herd-scheduler
             - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml

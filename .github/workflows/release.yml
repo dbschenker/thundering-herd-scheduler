@@ -1,0 +1,30 @@
+on:
+  push:
+    tags:
+      - "v*.*-*"
+name: Release
+jobs:
+  docker-build:
+    uses: ./.github/workflows/docker.yml
+  build-and-test:
+    uses: ./.github/workflows/build.yml
+  create-release:
+    needs:
+      - docker-build
+      - build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: thundering-herd-scheduler-binaries
+        path: bin
+    - name: debug list files
+      run: find .
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/thundering-herd-scheduler*
+        append_body: true
+        body: |
+          Build also available as docker image:
+          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`

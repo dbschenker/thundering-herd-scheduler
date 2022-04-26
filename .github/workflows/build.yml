@@ -1,7 +1,17 @@
-on: [push, pull_request]
-name: Test
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+  workflow_call:
+
+name: Build and test
 jobs:
-  test:
+  build:
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
+        os: [linux, darwin]
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.17.x
@@ -31,7 +41,7 @@ jobs:
 #        uses: github/codeql-action/init@v1
 
       - name: Build
-        run: go build ./cmd/thundering-herd-scheduler
+        run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
 #      TODO: enable as soon as public
 #      - name: Perform CodeQL Analysis
@@ -39,3 +49,10 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+      - uses: actions/upload-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          name: thundering-herd-scheduler-binaries
+          path: bin/thundering-herd-scheduler-*
+          if-no-files-found: error
