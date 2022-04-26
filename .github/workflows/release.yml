@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   create-release:
     needs:
-#      - docker-build
+      - docker-build
       - build-and-test
     runs-on: ubuntu-latest
     steps:
@@ -27,4 +27,4 @@ jobs:
         append_body: true
         body: |
           Build also available as docker image:
-          `${{ github.repository }}:${{ github.ref_name }}`
+          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`

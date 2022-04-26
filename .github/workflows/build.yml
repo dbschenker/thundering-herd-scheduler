@@ -1,8 +1,8 @@
 on:
-#  push:
-#    branches:
-#      - "*"
-#  pull_request:
+  push:
+    branches:
+      - "*"
+  pull_request:
   workflow_call:
 
 name: Build and test
