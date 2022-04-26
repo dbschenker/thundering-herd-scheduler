@@ -10,10 +10,10 @@ A Helm chart for Thundering herd scheduler
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Afinity for pods |
 | fullnameOverride | string | `""` | Full name override |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"TODO","tag":"v0.1.1"}` | Thundering-herd-scheduler container image settings |
+| image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/dbschenker/thundering-herd-scheduler","tag":"v1.21-0"}` | Thundering-herd-scheduler container image settings |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
-| image.repository | string | `"TODO"` | Registry address |
-| image.tag | string | `"v0.1.1"` | Image tag. Overrides the image tag whose default is the chart appVersion. |
+| image.repository | string | `"ghcr.io/dbschenker/thundering-herd-scheduler"` | Registry address |
+| image.tag | string | `"v1.21-0"` | Image tag. Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | Map with names of image pull secrets |
 | nameOverride | string | `""` | Name override |
 | nodeSelector | object | `{}` | Node selector |
@@ -21,7 +21,7 @@ A Helm chart for Thundering herd scheduler
 | podDisruptionBudget.enabled | bool | `true` | Controls if PodDisruptionBadget object is created |
 | podDisruptionBudget.minAvailable | int | `1` | Pod disruption budget - minAvailable. Enforces that at least one pod is available. |
 | podSecurityContext | object | `{}` | Pod securoty context |
-| replicaCount | int | `3` | Thundering-herd-scheduler replcia count. By default it is set to 3. |
+| replicaCount | int | `3` | Thundering-herd-scheduler replica count. By default it is set to 3. |
 | resources | object | `{"limits":{"cpu":"250m","memory":"768Mi"},"requests":{"cpu":"100m","memory":"300Mi"}}` | Resource limit and request settings |
 | scheduler.burst | int | `60` | burst rate limiter setting |
 | scheduler.logLevel | int | `1` | Thundering-herd-scheduler logging level |

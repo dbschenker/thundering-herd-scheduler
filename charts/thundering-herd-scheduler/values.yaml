@@ -12,19 +12,17 @@ scheduler:
     timeoutSeconds: 5
     # -- How many times a pod can run through the process before it anyway get's scheduled
     maxRetries: 5
-# -- Thundering-herd-scheduler replcia count. By default it is set to 3.
+# -- Thundering-herd-scheduler replica count. By default it is set to 3.
 replicaCount: 3
 
 # -- Thundering-herd-scheduler container image settings
 image:
-  # TODO Update to target image registry
   # -- Registry address
-  repository: "TODO"
+  repository: "ghcr.io/dbschenker/thundering-herd-scheduler"
   # -- Image pull policy
   pullPolicy: IfNotPresent
-  # TODO Update to target image version
   # -- Image tag. Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.1.1"
+  tag: "v1.21-0"
 
 # -- Map with names of image pull secrets
 imagePullSecrets: []

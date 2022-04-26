@@ -56,4 +56,3 @@ jobs:
           name: thundering-herd-scheduler-binaries
           path: bin/thundering-herd-scheduler-*
           if-no-files-found: error
-
