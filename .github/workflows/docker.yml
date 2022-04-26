@@ -6,15 +6,6 @@ on:
     branches:
       - '*'
     pull_request:
-#      - 'main'
-#      - 'release-*'
-#      - 'actions'
-#    tags:
-#      - 'v*.*-*'
-#  pull_request:
-#    branches:
-#      - 'main'
-#      - 'release-*'
 
 env:
   # Use docker.io for Docker Hub if empty
