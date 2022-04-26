@@ -50,13 +50,10 @@ jobs:
       - name: Test
         run: go test ./...
 
-  upload-artifacts:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    needs:
-    - build
-    steps:
       - uses: actions/upload-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           name: thundering-herd-scheduler-binaries
           path: bin/thundering-herd-scheduler-*
+          if-no-files-found: error
+
