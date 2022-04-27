@@ -1,8 +1,12 @@
 on:
   push:
+    paths-ignore:
+      - 'charts/**'
     branches:
-      - "*"
+      - '*'
   pull_request:
+    paths-ignore:
+      - 'charts/**'
   workflow_call:
 
 name: Build and test
@@ -36,16 +40,14 @@ jobs:
         env:
           GOPROXY: https://proxy.golang.org
 
-#      TODO: enable as soon as public
-#      - name: Initialize CodeQL
-#        uses: github/codeql-action/init@v1
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
 
       - name: Build
         run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
-#      TODO: enable as soon as public
-#      - name: Perform CodeQL Analysis
-#        uses: github/codeql-action/analyze@v1
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
 
       - name: Test
         run: go test ./...

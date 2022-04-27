@@ -3,10 +3,13 @@ name: Build docker image
 on:
   workflow_call:
   push:
+    paths-ignore:
+      - 'charts/**'
     branches:
       - '*'
   pull_request:
-
+    paths-ignore:
+      - 'charts/**'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
