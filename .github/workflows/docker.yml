@@ -3,10 +3,10 @@ name: Build docker image
 on:
   workflow_call:
   push:
-    ignore-paths:
+    paths-ignore:
       - 'charts/**'
   pull_request:
-    ignore-paths:
+    paths-ignore:
       - 'charts/**'
 env:
   # Use docker.io for Docker Hub if empty
