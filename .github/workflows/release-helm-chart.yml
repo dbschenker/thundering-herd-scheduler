@@ -2,6 +2,8 @@ on:
   push:
     paths:
       - "charts/**"
+    branches:
+      - 'main'
 
 name: Release
 jobs:
