@@ -2,7 +2,11 @@ on:
   push:
     branches:
       - "*"
+    ignore-paths:
+      - 'charts/**'
   pull_request:
+    ignore-paths:
+      - 'charts/**'
   workflow_call:
 
 name: Build and test
