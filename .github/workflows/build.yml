@@ -1,9 +1,9 @@
 on:
   push:
-    ignore-paths:
+    paths-ignore:
       - 'charts/**'
   pull_request:
-    ignore-paths:
+    paths-ignore:
       - 'charts/**'
   workflow_call:
 
