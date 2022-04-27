@@ -1,7 +1,7 @@
 on:
   push:
-    tags:
-      - "chart-v*.*.*"
+    paths:
+      - "charts/**"
 
 name: Release
 jobs:
