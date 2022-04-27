@@ -3,6 +3,16 @@ entries:
   thundering-herd-scheduler:
   - apiVersion: v2
     appVersion: v1.21-0
+    created: "2022-04-27T12:35:14.627516079Z"
+    description: A Helm chart for Thundering herd scheduler
+    digest: 87d0fe0078eaeb7e702318e74f165b8882afe212c1eaf0cba0a8e07e45ba3f0a
+    name: thundering-herd-scheduler
+    type: application
+    urls:
+    - https://github.com/dbschenker/thundering-herd-scheduler/releases/download/thundering-herd-scheduler-1.0.0/thundering-herd-scheduler-1.0.0.tgz
+    version: 1.0.0
+  - apiVersion: v2
+    appVersion: v1.21-0
     created: "2022-04-27T12:06:19.48381555Z"
     description: A Helm chart for Thundering herd scheduler
     digest: c38e71e5db281a37233d70950f9b67381c1bc472787ae61ef787c5f65deac0da
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/dbschenker/thundering-herd-scheduler/releases/download/thundering-herd-scheduler-0.0.4/thundering-herd-scheduler-0.0.4.tgz
     version: 0.0.4
-generated: "2022-04-27T12:06:19.48382145Z"
+generated: "2022-04-27T12:35:14.627524479Z"
