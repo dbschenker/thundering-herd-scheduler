@@ -8,11 +8,11 @@ import (
 	"os"
 )
 
-const VERSION = "development"
+var Version = "development"
 
 func main() {
 	klog.Info("Start custom scheduler implementing Thundering Herd Scheduling")
-	klog.Infof("Version: %s", VERSION)
+	klog.Infof("Version: %s", Version)
 	klog.Info("Author: Kamil Krzywicki (kamil.krzywicki@dbschenker.com)")
 	klog.Info("Author: Björn Wenzel (bjoern.wenzel@dbschenker.com)")
 

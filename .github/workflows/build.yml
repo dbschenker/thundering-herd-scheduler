@@ -43,8 +43,14 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
 
+      - name: Set ldflags version
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        run: |
+          echo LDFLAGS="-ldflags=\"-X 'main.Version=${{ github.ref_name }}' -X 'k8s.io/component-base/version.gitVersion=${{ github.ref_name }}'"\" >> $GITHUB_ENV
+
+
       - name: Build
-        run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
+        run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build ${{ env.LDFLAGS }} -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
