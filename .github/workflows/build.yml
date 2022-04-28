@@ -52,6 +52,9 @@ jobs:
       - name: Build
         run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build ${{ env.LDFLAGS }} -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
+      - name: Version
+        run: bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} --version
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
 
