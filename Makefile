@@ -21,3 +21,6 @@ clean:
 
 test:
 		go test ./...
+
+docker:
+		docker buildx build -t thundering-herd-scheduler:local --build-arg RELEASE_VERSION=v1.0.0-beta .
