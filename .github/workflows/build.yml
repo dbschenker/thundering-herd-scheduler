@@ -16,6 +16,7 @@ jobs:
       matrix:
         architecture: [amd64, arm64]
         os: [linux, darwin]
+
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.17.x
@@ -33,7 +34,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download Go modules
         run: go mod download
@@ -41,7 +42,9 @@ jobs:
           GOPROXY: https://proxy.golang.org
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
+        with:
+          languages: [ 'go' ]
 
       - name: Set ldflags version
         if: github.event_name == 'push' && github.ref_type == 'tag'
@@ -57,7 +60,7 @@ jobs:
         run: bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} --version
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
 
       - name: Test
         run: go test ./...
