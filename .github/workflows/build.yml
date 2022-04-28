@@ -53,6 +53,7 @@ jobs:
         run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build ${{ env.LDFLAGS }} -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
       - name: Version
+        if: matrix.os == "linux" && matrix.architecture == "amd64"
         run: bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} --version
 
       - name: Perform CodeQL Analysis
