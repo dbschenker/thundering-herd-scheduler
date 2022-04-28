@@ -3,10 +3,13 @@ name: Build docker image
 on:
   workflow_call:
   push:
+    paths-ignore:
+      - 'charts/**'
     branches:
       - '*'
   pull_request:
-
+    paths-ignore:
+      - 'charts/**'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
@@ -75,6 +78,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,darwin/arm64,darwin/amd64
+          build-args: ${{ github.event_name == 'push' && github.ref_type == 'tag' && format('RELEASE_VERSION={0}', github.ref_name) || '' }}
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
