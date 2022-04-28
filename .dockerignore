@@ -1,0 +1,9 @@
+.git/
+Dockerfile
+.github/
+charts/
+manifests/
+bin/
+.idea/
+.code/
+Makefile
