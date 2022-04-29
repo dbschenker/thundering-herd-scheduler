@@ -46,6 +46,7 @@ docker_snapshot:
   <<: *docker_buildx_template
   only:
     - master
+    - main
 
 docker_release:
   stage: docker-release

@@ -18,24 +18,7 @@ But as it's currently still in an unclear state the Thundering-Herd-Scheduler co
 The Scheduler acts based on the [https://kubernetes.io/docs/concepts/scheduling-eviction/scheduling-framework/](Scheduling Framework) implemented in Kubernetes.
 It implements the Permit Scheduling Cycle with the following logic.
 
-```plantuml
-@startuml
-(*) --> "Pod get's Scheduled to node"
-
-if "There are more than n pods on the node in starting / crashing phase" then
-  -->[true] "Increase counter or set 1"
-
-  if "Counter is larger than max retires" then
-    -->[true] "Success"
-  else
-    -->[false] "Wait"
-  endif
-
-else
-  -->[false] "Success"
-endif
-@enduml
-```
+![Diagram](docs/images/diagram.png)
 
 In any case, the scheduler continues the scheduling and starting of the pod after a specified number of retries to prevent a scheduling issue.
 

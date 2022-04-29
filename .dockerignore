@@ -7,3 +7,10 @@ bin/
 .idea/
 .code/
 Makefile
+docs/
+*.md
+.gitlab-ci.yml
+.pre-commit-config.yaml
+.gitignore
+sonar-project.properties
+LICENSE
