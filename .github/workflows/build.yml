@@ -10,7 +10,7 @@ on:
     paths-ignore:
       - 'charts/**'
       - 'docs/**'
-      - '/*.md'      -
+      - '/*.md'
   workflow_call:
 
 name: Build and test
