@@ -1,0 +1,16 @@
+@startuml
+(*) --> "Pod get's Scheduled to node"
+
+if "There are more than n pods on the node in starting / crashing phase" then
+  -->[true] "Increase counter or set 1"
+
+  if "Counter is larger than max retires" then
+    -->[true] "Success"
+  else
+    -->[false] "Wait"
+  endif
+
+else
+  -->[false] "Success"
+endif
+@enduml
