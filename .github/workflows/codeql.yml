@@ -1,21 +1,29 @@
 on:
+  schedule:
+    - cron: '5 11 * * 2'
   push:
     paths-ignore:
       - 'charts/**'
     branches:
-      - '*'
+      - 'main'
+      - 'release-*'
   pull_request:
+    branches:
+      - 'main'
+      - 'release-*'
     paths-ignore:
       - 'charts/**'
   workflow_call:
 
 name: Build and test
 jobs:
-  build:
+  codql-build:
+    permissions:
+      security-events: write
     strategy:
       matrix:
-        architecture: [amd64, arm64]
-        os: [linux, darwin]
+        architecture: [amd64]
+        os: [linux]
 
     runs-on: ubuntu-latest
     steps:
@@ -41,25 +49,13 @@ jobs:
         env:
           GOPROXY: https://proxy.golang.org
 
-      - name: Set ldflags version
-        if: github.event_name == 'push' && github.ref_type == 'tag'
-        run: |
-          echo LDFLAGS="-ldflags=\"-X 'main.Version=${{ github.ref_name }}' -X 'k8s.io/component-base/version.gitVersion=${{ github.ref_name }}'"\" >> $GITHUB_ENV
-
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: go
 
       - name: Build
         run: GOOS=${{ matrix.os }} GOARCH=${{matrix.architecture}} go build ${{ env.LDFLAGS }} -o bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} ./cmd/thundering-herd-scheduler
 
-      - name: Version
-        if: matrix.os == 'linux' && matrix.architecture == 'amd64'
-        run: bin/thundering-herd-scheduler-${{ matrix.os }}-${{ matrix.architecture }} --version
-
-      - name: Test
-        run: go test ./...
-
-      - uses: actions/upload-artifact@v3
-        if: github.event_name != 'pull_request'
-        with:
-          name: thundering-herd-scheduler-binaries
-          path: bin/thundering-herd-scheduler-*
-          if-no-files-found: error
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
