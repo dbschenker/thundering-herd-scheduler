@@ -4,6 +4,8 @@ on:
   push:
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'
     branches:
       - 'main'
       - 'release-*'
@@ -13,6 +15,8 @@ on:
       - 'release-*'
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'
   workflow_call:
 
 name: Build and test

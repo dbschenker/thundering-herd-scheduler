@@ -2,11 +2,15 @@ on:
   push:
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'
     branches:
       - '*'
   pull_request:
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'      -
   workflow_call:
 
 name: Build and test

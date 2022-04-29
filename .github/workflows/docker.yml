@@ -5,11 +5,15 @@ on:
   push:
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'
     branches:
       - '*'
   pull_request:
     paths-ignore:
       - 'charts/**'
+      - 'docs/**'
+      - '/*.md'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
