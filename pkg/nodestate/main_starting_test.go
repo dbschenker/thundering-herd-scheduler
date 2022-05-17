@@ -19,7 +19,7 @@ func TestAddStartingPodWithoutContainerStatus(t *testing.T) {
 		t.Errorf("No value added to nodeMap for node: test-node")
 	}
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 }
 
 func TestAddStartingPodWithStatus(t *testing.T) {
@@ -34,7 +34,7 @@ func TestAddStartingPodWithStatus(t *testing.T) {
 		t.Errorf("No value added to nodeMap for node: test-node")
 	}
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 }
 
 func TestShouldDoNothingWhileAddingPodTwice(t *testing.T) {
@@ -51,7 +51,7 @@ func TestShouldDoNothingWhileAddingPodTwice(t *testing.T) {
 		t.Errorf("No value added to nodeMap for node: test-node")
 	}
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 }
 
 func TestShouldRemoveStartingPodDueToDelete(t *testing.T) {
@@ -63,11 +63,11 @@ func TestShouldRemoveStartingPodDueToDelete(t *testing.T) {
 	n.addPod(&p)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 
 	n.deletePod(&p)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 0, 0)
 }
 
 func TestShouldDoNothingIfNodeNameIsEmpty(t *testing.T) {
@@ -87,6 +87,7 @@ func TestValidNumberOfUnhealthyPodsInStartingPhase(t *testing.T) {
 	pod1 := getStartingPod("pod", "default", "uuid", "test-node", true)
 	pod2 := getStartingPod("pod1", "default", "uuid", "test-node", true)
 	pod3 := getStartingPod("pod2", "default", "uuid", "test-node-1", true)
+	pod4 := getStartingPod("pod3", "default", "uuid", "test-node", true)
 
 	n := NodeState{
 		nodeMap: map[string]NodeStateModel{},
@@ -94,9 +95,10 @@ func TestValidNumberOfUnhealthyPodsInStartingPhase(t *testing.T) {
 	n.addPod(&pod1)
 	n.addPod(&pod2)
 	n.addPod(&pod3)
+	n.AddSchedulingPod(&pod4, "test-node")
 
 	unhealthyPodsOnTestNode := n.UnhealthyPods("test-node")
-	if unhealthyPodsOnTestNode != 2 {
+	if unhealthyPodsOnTestNode != 3 {
 		t.Errorf("Expected number of unhealthy pods on test-node to be 2, but got %d", unhealthyPodsOnTestNode)
 	}
 
@@ -109,30 +111,10 @@ func TestValidNumberOfUnhealthyPodsInStartingPhase(t *testing.T) {
 	if unhealthyPodsOnTestNode2 != 0 {
 		t.Errorf("Expected number of unhealthy pods on test-node-2 to be 0, but got %d", unhealthyPodsOnTestNode2)
 	}
+
 }
 
-func TestShouldAddStartingPodWithNodeAssigned(t *testing.T) {
-	p := v1.Pod{
-		ObjectMeta: meta_v1.ObjectMeta{
-			Name:      "test-pod",
-			Namespace: "test-namespace",
-			UID:       types.UID("uuid"),
-		},
-		Status: v1.PodStatus{
-			ContainerStatuses: []v1.ContainerStatus{},
-		},
-	}
-
-	n := NodeState{
-		nodeMap: map[string]NodeStateModel{},
-	}
-	n.AddSchedulingPod(&p, "test-node")
-
-	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
-}
-
-func podsInPhaseComperator(t *testing.T, n NodeStateModel, expectedStartingPods int, expectedRunningPods int, expectedUnhealthyPods int) {
+func podsInPhaseComperator(t *testing.T, n NodeStateModel, expectedStartingPods int, expectedRunningPods int, expectedUnhealthyPods int, expectedSchedulingPods int) {
 	if len(n.startingPods) != expectedStartingPods {
 		t.Errorf("Wrong number of starting pods calculated, expected %d, got %d", expectedStartingPods, len(n.startingPods))
 	}
@@ -143,6 +125,10 @@ func podsInPhaseComperator(t *testing.T, n NodeStateModel, expectedStartingPods 
 
 	if len(n.unhealthyPods) != expectedUnhealthyPods {
 		t.Errorf("Wrong number of unhealthy pods calculated, expected %d, got %d", expectedUnhealthyPods, len(n.unhealthyPods))
+	}
+
+	if len(n.schedulingPods) != expectedSchedulingPods {
+		t.Errorf("Wrong number of scheduling pods calculated, expected %d, got %d", expectedSchedulingPods, len(n.schedulingPods))
 	}
 }
 

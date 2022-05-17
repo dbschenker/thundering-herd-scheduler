@@ -19,7 +19,7 @@ func TestRunningPod(t *testing.T) {
 		t.Errorf("No value added to nodeMap for node: test-node")
 	}
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 }
 
 func TestRunningPodIdempotence(t *testing.T) {
@@ -31,10 +31,10 @@ func TestRunningPodIdempotence(t *testing.T) {
 	n.addPod(&p)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 1, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 1, 0, 0)
 }
 
 func TestPodMovedFromStartingToRunningState(t *testing.T) {
@@ -46,11 +46,11 @@ func TestPodMovedFromStartingToRunningState(t *testing.T) {
 	}
 	n.addPod(&startingPod)
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 
 	n.addPod(&runningPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 1, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 1, 0, 0)
 }
 
 func TestPodMovedFromUnhealthyToRunningState(t *testing.T) {
@@ -62,11 +62,11 @@ func TestPodMovedFromUnhealthyToRunningState(t *testing.T) {
 	}
 	n.addPod(&unhealthyPod)
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 0, 1)
+	podsInPhaseComperator(t, nodeState, 0, 0, 1, 0)
 
 	n.addPod(&runningPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 1, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 1, 0, 0)
 }
 
 func TestRemovePod(t *testing.T) {
@@ -77,11 +77,11 @@ func TestRemovePod(t *testing.T) {
 	}
 	n.addPod(&runningPod)
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 
 	n.deletePod(&runningPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 0, 0)
 }
 
 func TestValidNumberOfUnhealthyPods(t *testing.T) {

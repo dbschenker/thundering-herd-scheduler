@@ -24,6 +24,12 @@ var (
 		Help:           "Shows pods in unhealthy phase per node",
 		StabilityLevel: metrics.STABLE,
 	}, []string{"node"})
+
+	schedulingPodsMetric = metrics.NewGaugeVec(&metrics.GaugeOpts{
+		Name:           "thundering_herd_scheduler_scheduling_pods",
+		Help:           "Shows pods in scheduling state per node",
+		StabilityLevel: metrics.STABLE,
+	}, []string{"node"})
 )
 
 var registerMetricsOnce sync.Once
@@ -33,5 +39,6 @@ func init() {
 		legacyregistry.MustRegister(startingPodsMetric)
 		legacyregistry.MustRegister(runningPodsMetric)
 		legacyregistry.MustRegister(unhealthyPodsMetric)
+		legacyregistry.MustRegister(schedulingPodsMetric)
 	})
 }

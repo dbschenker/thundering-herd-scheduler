@@ -6,6 +6,7 @@ import (
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+	"time"
 )
 
 type NodeStateInterface interface {
@@ -28,18 +29,21 @@ func NewNodeState(client kubernetes.Interface) NodeStateInterface {
 		DeleteFunc: func(obj interface{}) {
 			pod := obj.(*v1.Pod)
 			n.deletePod(pod)
+			n.cleanupExpirablePods()
 			n.updateMetrics()
 			//n.printAllPodsInAllStates()
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			pod := newObj.(*v1.Pod)
 			n.addPod(pod)
+			n.cleanupExpirablePods()
 			n.updateMetrics()
 			//n.printAllPodsInAllStates()
 		},
 		AddFunc: func(obj interface{}) {
 			pod := obj.(*v1.Pod)
 			n.addPod(pod)
+			n.cleanupExpirablePods()
 			n.updateMetrics()
 			//n.printAllPodsInAllStates()
 		},
@@ -57,9 +61,19 @@ func NewNodeState(client kubernetes.Interface) NodeStateInterface {
 //	}
 //}
 
+func (n *NodeState) cleanupExpirablePods() {
+	for node, nodeState := range n.nodeMap {
+		nodeState.schedulingPods = cleanupExpired(nodeState.schedulingPods)
+		nodeState.unhealthyPods = cleanupExpired(nodeState.unhealthyPods)
+		nodeState.startingPods = cleanupExpired(nodeState.startingPods)
+		nodeState.runningPods = cleanupExpired(nodeState.runningPods)
+		n.nodeMap[node] = nodeState
+	}
+}
+
 func (n *NodeState) UnhealthyPods(nodeName string) int {
 	if val, ok := n.nodeMap[nodeName]; ok {
-		return len(val.unhealthyPods) + len(val.startingPods)
+		return countNonExpiredByType(val.unhealthyPods) + countNonExpiredByType(val.startingPods) + countNonExpiredByType(val.schedulingPods)
 	}
 
 	return 0
@@ -68,42 +82,39 @@ func (n *NodeState) UnhealthyPods(nodeName string) int {
 func (n *NodeState) AddSchedulingPod(pod *v1.Pod, nodeName string) {
 	assignedPod := pod.DeepCopy()
 	assignedPod.Spec.NodeName = nodeName
-	n.addStartingPod(assignedPod)
+
+	key := podStoringKey(assignedPod)
+
+	n.initializeNodeMap(assignedPod.Spec.NodeName)
+	n.removeAlreadyExistingPodVersionsFromAllNodes(assignedPod)
+
+	node := n.nodeMap[assignedPod.Spec.NodeName]
+	if _, found := find(node.schedulingPods, key); !found {
+		expiry := time.Now().Add(1 * time.Minute)
+		entry := PodNodeStateModel{
+			key:    key,
+			expiry: &expiry,
+		}
+		node.schedulingPods = append(node.schedulingPods, entry)
+	}
+	n.nodeMap[assignedPod.Spec.NodeName] = node
+
+	n.updateMetrics()
 }
 
 func (n *NodeState) deletePod(pod *v1.Pod) {
-	n.deletePodFromStarting(pod)
-	n.deletePodFromRunning(pod)
-	n.deletePodFromUnhealthy(pod)
+	n.removeAlreadyExistingPodVersionsFromAllNodes(pod)
 }
 
-func (n *NodeState) deletePodFromStarting(pod *v1.Pod) {
-	if pod.Spec.NodeName != "" {
-		if val, ok := n.nodeMap[pod.Spec.NodeName]; ok {
-			key := podStoringKey(pod)
-			val.startingPods = remove(val.startingPods, key)
-			n.nodeMap[pod.Spec.NodeName] = val
-		}
-	}
-}
+func (n *NodeState) removeAlreadyExistingPodVersionsFromAllNodes(pod *v1.Pod) {
+	key := podStoringKey(pod)
 
-func (n *NodeState) deletePodFromRunning(pod *v1.Pod) {
-	if pod.Spec.NodeName != "" {
-		if val, ok := n.nodeMap[pod.Spec.NodeName]; ok {
-			key := podStoringKey(pod)
-			val.runningPods = remove(val.runningPods, key)
-			n.nodeMap[pod.Spec.NodeName] = val
-		}
-	}
-}
-
-func (n *NodeState) deletePodFromUnhealthy(pod *v1.Pod) {
-	if pod.Spec.NodeName != "" {
-		if val, ok := n.nodeMap[pod.Spec.NodeName]; ok {
-			key := podStoringKey(pod)
-			val.unhealthyPods = remove(val.unhealthyPods, key)
-			n.nodeMap[pod.Spec.NodeName] = val
-		}
+	for node, model := range n.nodeMap {
+		model.runningPods = remove(model.runningPods, key)
+		model.startingPods = remove(model.startingPods, key)
+		model.unhealthyPods = remove(model.unhealthyPods, key)
+		model.schedulingPods = remove(model.schedulingPods, key)
+		n.nodeMap[node] = model
 	}
 }
 
@@ -146,23 +157,27 @@ func (n *NodeState) addPod(pod *v1.Pod) {
 
 func (n *NodeState) updateMetrics() {
 	for node, model := range n.nodeMap {
-		startCount := len(model.startingPods)
+		startCount := countNonExpiredByType(model.startingPods)
 		startingPodsMetric.WithLabelValues(node).Set(float64(startCount))
 
-		runningCount := len(model.runningPods)
+		runningCount := countNonExpiredByType(model.runningPods)
 		runningPodsMetric.WithLabelValues(node).Set(float64(runningCount))
 
-		unhealthyCount := len(model.unhealthyPods)
+		unhealthyCount := countNonExpiredByType(model.unhealthyPods)
 		unhealthyPodsMetric.WithLabelValues(node).Set(float64(unhealthyCount))
+
+		schedulingCount := countNonExpiredByType(model.schedulingPods)
+		schedulingPodsMetric.WithLabelValues(node).Set(float64(schedulingCount))
 	}
 }
 
 func (n *NodeState) initializeNodeMap(nodeName string) {
 	if _, ok := n.nodeMap[nodeName]; !ok {
 		n.nodeMap[nodeName] = NodeStateModel{
-			startingPods:  []string{},
-			runningPods:   []string{},
-			unhealthyPods: []string{},
+			startingPods:   []PodNodeStateModel{},
+			runningPods:    []PodNodeStateModel{},
+			unhealthyPods:  []PodNodeStateModel{},
+			schedulingPods: []PodNodeStateModel{},
 		}
 	}
 }
@@ -174,15 +189,16 @@ func (n *NodeState) addStartingPod(pod *v1.Pod) {
 	}
 
 	n.initializeNodeMap(pod.Spec.NodeName)
+	n.removeAlreadyExistingPodVersionsFromAllNodes(pod)
 
 	node := n.nodeMap[pod.Spec.NodeName]
 	if _, found := find(node.startingPods, key); !found {
-		node.startingPods = append(node.startingPods, key)
+		entry := PodNodeStateModel{
+			key: key,
+		}
+		node.startingPods = append(node.startingPods, entry)
 	}
 	n.nodeMap[pod.Spec.NodeName] = node
-
-	n.deletePodFromRunning(pod)
-	n.deletePodFromUnhealthy(pod)
 }
 
 func (n *NodeState) addRunningPod(pod *v1.Pod) {
@@ -192,15 +208,16 @@ func (n *NodeState) addRunningPod(pod *v1.Pod) {
 	}
 
 	n.initializeNodeMap(pod.Spec.NodeName)
+	n.removeAlreadyExistingPodVersionsFromAllNodes(pod)
 
 	node := n.nodeMap[pod.Spec.NodeName]
 	if _, found := find(node.runningPods, key); !found {
-		node.runningPods = append(node.runningPods, key)
+		entry := PodNodeStateModel{
+			key: key,
+		}
+		node.runningPods = append(node.runningPods, entry)
 	}
 	n.nodeMap[pod.Spec.NodeName] = node
-
-	n.deletePodFromStarting(pod)
-	n.deletePodFromUnhealthy(pod)
 }
 
 func (n *NodeState) addUnhealthyPod(pod *v1.Pod) {
@@ -210,15 +227,16 @@ func (n *NodeState) addUnhealthyPod(pod *v1.Pod) {
 	}
 
 	n.initializeNodeMap(pod.Spec.NodeName)
+	n.removeAlreadyExistingPodVersionsFromAllNodes(pod)
 
 	node := n.nodeMap[pod.Spec.NodeName]
 	if _, found := find(node.unhealthyPods, key); !found {
-		node.unhealthyPods = append(node.unhealthyPods, key)
+		entry := PodNodeStateModel{
+			key: key,
+		}
+		node.unhealthyPods = append(node.unhealthyPods, entry)
 	}
 	n.nodeMap[pod.Spec.NodeName] = node
-
-	n.deletePodFromStarting(pod)
-	n.deletePodFromRunning(pod)
 }
 
 func allContainerReady(pod *v1.Pod) bool {
@@ -249,18 +267,18 @@ func hasRestartingContainer(pod *v1.Pod) bool {
 	return false
 }
 
-func remove(s []string, r string) []string {
+func remove(s []PodNodeStateModel, r string) []PodNodeStateModel {
 	for i, v := range s {
-		if v == r {
+		if v.key == r {
 			return append(s[:i], s[i+1:]...)
 		}
 	}
 	return s
 }
 
-func find(slice []string, val string) (int, bool) {
+func find(slice []PodNodeStateModel, val string) (int, bool) {
 	for i, item := range slice {
-		if item == val {
+		if item.key == val {
 			return i, true
 		}
 	}
@@ -269,4 +287,28 @@ func find(slice []string, val string) (int, bool) {
 
 func podStoringKey(pod *v1.Pod) string {
 	return fmt.Sprintf("%s-%s-%s", pod.Name, pod.Namespace, pod.UID)
+}
+
+func cleanupExpired(nodeStateEntry []PodNodeStateModel) []PodNodeStateModel {
+	now := time.Now()
+	for _, entry := range nodeStateEntry {
+		if entry.expiry != nil && entry.expiry.Before(now) {
+			nodeStateEntry = remove(nodeStateEntry, entry.key)
+		}
+	}
+	return nodeStateEntry
+}
+
+func countNonExpiredByType(podsInStateModel []PodNodeStateModel) int {
+	count := 0
+	for _, entry := range podsInStateModel {
+		if entry.expiry == nil {
+			count++
+		} else {
+			if entry.expiry.After(time.Now()) {
+				count++
+			}
+		}
+	}
+	return count
 }
