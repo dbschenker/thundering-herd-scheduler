@@ -18,7 +18,7 @@ func TestUnhealthyPod(t *testing.T) {
 		t.Errorf("No value added to nodeMap for node: test-node")
 	}
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 0, 1)
+	podsInPhaseComperator(t, nodeState, 0, 0, 1, 0)
 }
 
 func TestUnhealthyPodIdempotence(t *testing.T) {
@@ -29,11 +29,11 @@ func TestUnhealthyPodIdempotence(t *testing.T) {
 	n.addPod(&unhealthyPod)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 0, 1)
+	podsInPhaseComperator(t, nodeState, 0, 0, 1, 0)
 
 	n.addPod(&unhealthyPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 1)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 1, 0)
 }
 
 func TestShouldRemoveStartingPodDueToUnhealthy(t *testing.T) {
@@ -46,11 +46,11 @@ func TestShouldRemoveStartingPodDueToUnhealthy(t *testing.T) {
 	n.addPod(&startingPod)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 1, 0, 0)
+	podsInPhaseComperator(t, nodeState, 1, 0, 0, 0)
 
 	n.addPod(&unhealthyPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 1)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 1, 0)
 }
 
 func TestShouldRemoveRunningPodDueToUnhealthy(t *testing.T) {
@@ -63,11 +63,11 @@ func TestShouldRemoveRunningPodDueToUnhealthy(t *testing.T) {
 	n.addPod(&runningPod)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 
 	n.addPod(&unhealthyPod)
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 1)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 1, 0)
 }
 
 func TestShouldShowValidNumberOfUnhealthyPodsInUnhealthyPhase(t *testing.T) {

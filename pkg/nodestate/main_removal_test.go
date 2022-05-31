@@ -15,13 +15,13 @@ func TestShouldRemovePodIfInSuccessPhase(t *testing.T) {
 	n.addPod(&runningPod)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 
 	completedPod := getPodInPhase("test-pod", "test-namespace", "test-uuid", "test-node", v1.PodSucceeded)
 	n.addPod(&completedPod)
 
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 0, 0)
 }
 
 func TestShouldRemovePodInFailedPhase(t *testing.T) {
@@ -32,13 +32,13 @@ func TestShouldRemovePodInFailedPhase(t *testing.T) {
 	n.addPod(&runningPod)
 
 	nodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, nodeState, 0, 1, 0)
+	podsInPhaseComperator(t, nodeState, 0, 1, 0, 0)
 
 	completedPod := getPodInPhase("test-pod", "test-namespace", "test-uuid", "test-node", v1.PodFailed)
 	n.addPod(&completedPod)
 
 	newNodeState := n.nodeMap["test-node"]
-	podsInPhaseComperator(t, newNodeState, 0, 0, 0)
+	podsInPhaseComperator(t, newNodeState, 0, 0, 0, 0)
 }
 
 func getPodInPhase(name string, namespace string, uuid string, nodeName string, phase v1.PodPhase) v1.Pod {
