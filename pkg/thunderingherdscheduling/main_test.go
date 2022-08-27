@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func TestShouldScheduleDirectlyAsThereAreNoUnhealthyPods(t *testing.T) {
+func TestShouldScheduleDirectlyAsThereAreNoUnreadyPods(t *testing.T) {
 	scheduler := getTestingScheduler(0, 0)
 	state := &framework.CycleState{}
 	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
@@ -35,7 +35,7 @@ func TestShouldScheduleDirectlyAsRetryCountExceeded(t *testing.T) {
 	}
 }
 
-func TestShouldReturnWaitWhenTooManyUnhealthyPodsAreInPlace(t *testing.T) {
+func TestShouldReturnWaitWhenTooManyNotReadyPodsAreInPlace(t *testing.T) {
 	scheduler := getTestingScheduler(0, 6)
 	state := &framework.CycleState{}
 	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
@@ -84,13 +84,13 @@ func TestFulfillmentOfInterface(t *testing.T) {
 	}
 }
 
-func getTestingScheduler(retryCounter int, unhealthyPods int) *ThunderingHerdScheduling {
+func getTestingScheduler(retryCounter int, notReadyPods int) *ThunderingHerdScheduling {
 	var m sync.Mutex
 	counter := PodCounterTest{
 		counter: retryCounter,
 	}
 	nodeState := NodeStateTest{
-		unhealthyPods: unhealthyPods,
+		notReadyPods: notReadyPods,
 	}
 	args := &ThunderingHerdSchedulingArgs{}
 	SetDefaultThunderingHerdArgs(args)
@@ -106,15 +106,15 @@ func getTestingScheduler(retryCounter int, unhealthyPods int) *ThunderingHerdSch
 }
 
 type NodeStateTest struct {
-	unhealthyPods int
+	notReadyPods int
 }
 
-func (n NodeStateTest) UnhealthyPods(_ string) int {
-	return n.unhealthyPods
+func (n NodeStateTest) NotReadyPods(_ string) int {
+	return n.notReadyPods
 }
 
 func (n NodeStateTest) AddSchedulingPod(_ *v1.Pod, _ string) {
-	n.unhealthyPods = n.unhealthyPods + 1
+	n.notReadyPods = n.notReadyPods + 1
 }
 
 type PodCounterTest struct {
