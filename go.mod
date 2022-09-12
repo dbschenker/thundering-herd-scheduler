@@ -3,6 +3,7 @@ module github.com/dbschenker/thundering-herd-scheduler
 go 1.17
 
 require (
+	github.com/benbjohnson/clock v1.0.3
 	k8s.io/api v0.22.9
 	k8s.io/apimachinery v0.22.9
 	k8s.io/client-go v0.22.9

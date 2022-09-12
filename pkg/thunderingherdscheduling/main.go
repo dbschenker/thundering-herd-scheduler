@@ -39,7 +39,9 @@ func (t *ThunderingHerdScheduling) Permit(_ context.Context, _ *framework.CycleS
 }
 
 func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*framework.Status, time.Duration) {
-	if t.nodestate.UnhealthyPods(nodeName) >= *t.args.ParallelStartingPodsPerNode {
+	notReadyPods := t.nodestate.NotReadyPods(nodeName)
+
+	if notReadyPods >= *t.args.ParallelStartingPodsPerNode {
 		counter, err := t.counter.IncrementCounter(p)
 		if err != nil {
 			// to prevent any kind of issue with the scheduler
@@ -55,6 +57,13 @@ func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*
 		// we need to wait
 		timeoutSeconds := t.args.TimeoutSeconds
 		waitTime := powInt(*timeoutSeconds, 2) * counter
+
+		klog.Infof("Pod has to wait as there are already more pods not ready then allowed to start parallel on node",
+			"pod", klog.KObj(p),
+			"maxParallelStartingPods", *t.args.ParallelStartingPodsPerNode,
+			"notReadyPods", notReadyPods,
+			"nodeName", nodeName,
+			"waitTime", waitTime)
 
 		return framework.NewStatus(framework.Wait), time.Duration(waitTime) * time.Second
 	} else {
@@ -76,7 +85,7 @@ func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) 
 	c := &ThunderingHerdScheduling{
 		counter:   podcounter.New(handle.ClientSet()),
 		args:      args,
-		nodestate: nodestate.NewNodeState(handle.ClientSet()),
+		nodestate: nodestate.NewNodeStateV2(handle.ClientSet()),
 		mutex:     &m,
 	}
 
