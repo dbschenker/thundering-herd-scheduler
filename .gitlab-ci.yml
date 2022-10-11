@@ -17,7 +17,7 @@ test:
     - go test ./...
 
 sonar:
-  image: golang:1.17-bullseye
+  image: golang:1.19-bullseye
   stage: test
   script:
     - go test -coverprofile=coverage.out ./...
