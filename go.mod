@@ -4,13 +4,13 @@ go 1.19
 
 require (
 	github.com/benbjohnson/clock v1.0.3
-	k8s.io/api v0.22.9
-	k8s.io/apimachinery v0.22.9
-	k8s.io/client-go v0.22.9
-	k8s.io/component-base v0.22.9
+	k8s.io/api v0.23.13
+	k8s.io/apimachinery v0.23.13
+	k8s.io/client-go v0.23.13
+	k8s.io/component-base v0.23.13
 	k8s.io/klog/v2 v2.9.0
-	k8s.io/kube-scheduler v0.22.9
-	k8s.io/kubernetes v1.22.9
+	k8s.io/kube-scheduler v0.23.13
+	k8s.io/kubernetes v1.23.13
 )
 
 require (
