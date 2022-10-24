@@ -31,6 +31,9 @@ spec:
           - /thundering-herd-scheduler
           - --config=/config/kube-scheduler.yaml
           - --profiling=false
+          {{- if .Values.scheduler.authorizationAlwaysAllowPaths }}
+          - --authorization-always-allow-paths={{ .Values.scheduler.authorizationAlwaysAllowPaths }}
+          {{- end }}
           - --v={{ .Values.scheduler.logLevel }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}

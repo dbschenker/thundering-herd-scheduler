@@ -83,7 +83,7 @@ metadata:
   namespace: kube-system
 data:
   scheduler-config.yaml: |
-    apiVersion: kubescheduler.config.k8s.io/v1beta1
+    apiVersion: kubescheduler.config.k8s.io/v1beta3
     kind: KubeSchedulerConfiguration
     leaderElection:
       leaderElect: true
@@ -115,10 +115,12 @@ spec:
       serviceAccountName: thundering-herd-scheduler
       containers:
         - name: thundering-herd-scheduler
-          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.21-0"
+#          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.23.0-0"
+          image: "thundering-herd-scheduler:local"
           command:
             - /thundering-herd-scheduler
             - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml
+            - --authorization-always-allow-paths=/healthz,/readyz,/livez,/metrics
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:

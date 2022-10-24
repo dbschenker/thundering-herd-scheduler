@@ -12,6 +12,8 @@ scheduler:
     timeoutSeconds: 5
     # -- How many times a pod can run through the process before it anyway get's scheduled
     maxRetries: 5
+  # -- Override --authorization-alwaus-allow-paths command-line parameter
+  authorizationAlwaysAllowPaths: "/healthz,/readyz,/livez,/metrics"
 # -- Thundering-herd-scheduler replica count. By default it is set to 3.
 replicaCount: 3
 
