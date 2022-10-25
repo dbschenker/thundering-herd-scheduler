@@ -6,7 +6,7 @@ metadata:
   {{- include "thundering-herd-scheduler.labels" . | nindent 4 }}
 data:
   kube-scheduler.yaml: |
-    apiVersion: kubescheduler.config.k8s.io/v1beta1
+    apiVersion: kubescheduler.config.k8s.io/v1beta3
     kind: KubeSchedulerConfiguration
     clientConnection:
     #  kubeconfig: "/var/lib/kubernetes/kube-scheduler.kubeconfig"
