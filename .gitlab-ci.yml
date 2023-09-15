@@ -30,7 +30,7 @@ sonar:
 .docker_buildx_template: &docker_buildx_template
   image: jdrouet/docker-with-buildx:stable
   script:
-    - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     - docker buildx create --use
     - docker buildx build
         --cache-from type=registry,ref=$CI_REGISTRY_IMAGE:cache
