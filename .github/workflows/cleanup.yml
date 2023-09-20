@@ -1,0 +1,20 @@
+on:
+  schedule:
+    - cron: '50 11 * * 6'
+  push:
+    paths:
+      - '.github/workflows/cleanup.yml'
+
+name: Cleanup old container images
+jobs:
+  cleanup-old-container-images:
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: 'container'
+          min-versions-to-keep: 30
+          delete-only-untagged-versions: 'true'
