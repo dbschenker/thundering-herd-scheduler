@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/delete-package-versions@v4
         with:
-          package-name: thundering-herd-scheduler
+          package-name: ${{ github.event.repository.name }}
           package-type: 'container'
           min-versions-to-keep: 30
           delete-only-untagged-versions: 'true'
