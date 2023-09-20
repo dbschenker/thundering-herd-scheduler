@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '50 11 * * 7'
+    - cron: '50 11 * * 6'
   push:
     paths:
       - '.github/workflows/cleanup.yml'
