@@ -27,7 +27,7 @@ In any case, the scheduler continues the scheduling and starting of the pod afte
 Configuration of the Scheduler happens via the KubeSchedulerConfiguration:
 
 ```yaml
-apiVersion: kubescheduler.config.k8s.io/v1beta3
+apiVersion: kubescheduler.config.k8s.io/v1
 kind: KubeSchedulerConfiguration
 leaderElection:
   leaderElect: true

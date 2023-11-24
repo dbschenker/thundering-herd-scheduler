@@ -83,7 +83,7 @@ metadata:
   namespace: kube-system
 data:
   scheduler-config.yaml: |
-    apiVersion: kubescheduler.config.k8s.io/v1beta3
+    apiVersion: kubescheduler.config.k8s.io/v1
     kind: KubeSchedulerConfiguration
     leaderElection:
       leaderElect: true
@@ -115,7 +115,8 @@ spec:
       serviceAccountName: thundering-herd-scheduler
       containers:
         - name: thundering-herd-scheduler
-          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.26.0-0"
+#          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.26.0-rc"
+          image: "thundering-herd-scheduler:local"
           command:
             - /thundering-herd-scheduler
             - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml
