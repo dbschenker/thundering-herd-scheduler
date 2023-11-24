@@ -1,6 +1,6 @@
 all: build test
 
-version := v1.22.0-0
+version := v1.26.0-0
 
 build:
 	go build -o bin/thundering-herd-scheduler ./cmd/thundering-herd-scheduler/main.go
