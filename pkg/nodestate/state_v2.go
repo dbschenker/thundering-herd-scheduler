@@ -38,13 +38,13 @@ func (n *NodeStateV2) NotReadyPods(nodeName string) int {
 	// copied from https://github.com/kubernetes/kubernetes/blob/4f2d7b93da2464a3147e0a7e71d896dd2bade9ad/pkg/printers/internalversion/describe.go#L2451
 	fieldSelector, err := fields.ParseSelector("spec.nodeName=" + nodeName + ",status.phase!=" + string(v1.PodSucceeded) + ",status.phase!=" + string(v1.PodFailed))
 	if err != nil {
-		klog.Error("Failed to create field selector for running pod calculation with error %v", err)
+		klog.Errorf("Failed to create field selector for running pod calculation with error %v", err)
 		return -1
 	}
 
 	nodeNonTerminatedPodsList, err := n.client.CoreV1().Pods("").List(context.TODO(), meta_v1.ListOptions{FieldSelector: fieldSelector.String()})
 	if err != nil {
-		klog.Error("Failed to list pods on node %s with error %v", nodeName, err)
+		klog.Errorf("Failed to list pods on node %s with error %v", nodeName, err)
 		return -1
 	}
 
