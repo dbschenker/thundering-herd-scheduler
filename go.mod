@@ -1,6 +1,6 @@
 module github.com/dbschenker/thundering-herd-scheduler
 
-go 1.21
+go 1.20
 
 require (
 	github.com/benbjohnson/clock v1.3.5
@@ -9,7 +9,6 @@ require (
 	k8s.io/client-go v0.26.11
 	k8s.io/component-base v0.26.11
 	k8s.io/klog/v2 v2.110.1
-	k8s.io/kube-scheduler v0.26.11
 	k8s.io/kubernetes v1.26.11
 )
 
@@ -106,6 +105,7 @@ require (
 	k8s.io/dynamic-resource-allocation v0.0.0 // indirect
 	k8s.io/kms v0.26.11 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
+	k8s.io/kube-scheduler v0.26.11 // indirect
 	k8s.io/mount-utils v0.24.9 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.37 // indirect

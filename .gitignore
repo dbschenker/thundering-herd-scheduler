@@ -2,3 +2,4 @@
 manifests/development/config
 manifests/development/registry.yaml
 bin/
+deployment

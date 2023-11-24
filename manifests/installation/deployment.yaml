@@ -96,6 +96,12 @@ data:
               - name: ThunderingHerdScheduling
             disabled:
               - name: "*"
+        pluginConfig:
+          - name: ThunderingHerdScheduling
+            args:
+              parallelStartingPodsPerNode: 3
+              timeoutSeconds: 5
+              maxRetries: 5
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -105,7 +111,7 @@ metadata:
   labels:
     app: thundering-herd-scheduler
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       name: thundering-herd-scheduler
@@ -121,7 +127,7 @@ spec:
             - /thundering-herd-scheduler
             - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml
             - --authorization-always-allow-paths=/healthz,/readyz,/livez,/metrics
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           livenessProbe:
             httpGet:
               path: /healthz

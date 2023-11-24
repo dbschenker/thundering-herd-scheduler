@@ -18,5 +18,5 @@ profiles:
       - name: ThunderingHerdScheduling
         args:
           parallelStartingPodsPerNode: 3
-#          timeoutSeconds: 5
-#          maxRetries: 5
+          timeoutSeconds: 5
+          maxRetries: 5
