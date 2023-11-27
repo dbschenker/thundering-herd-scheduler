@@ -1,18 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: training-server
+  name: thundering-herd-scheduler-training-server
   labels:
-    app: training-server
+    app: thundering-herd-scheduler-training-server
 spec:
   replicas: 5
   template:
     metadata:
-      name: training-server
+      name: thundering-herd-scheduler-training-server
       labels:
-        app: training-server
+        app: thundering-herd-scheduler-training-server
     spec:
       schedulerName: thundering-herd-scheduler
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - thundering-herd-scheduler-training-server
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: nginx
           image: daspawnw/training-server:latest
@@ -31,4 +41,4 @@ spec:
       restartPolicy: Always
   selector:
     matchLabels:
-      app: training-server
+      app: thundering-herd-scheduler-training-server
