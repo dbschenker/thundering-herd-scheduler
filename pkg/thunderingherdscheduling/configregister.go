@@ -4,20 +4,21 @@ import (
 	"k8s.io/apimachinery/pkg/conversion"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	schedschemev1beta3 "k8s.io/kube-scheduler/config/v1beta3"
+	schedconfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
 )
 
 const GroupName = "kubescheduler.config.k8s.io"
 
-var SchemaVersionV1Beta3 = schema.GroupVersion{Group: GroupName, Version: "v1beta3"}
+var SchemaVersionV1 = schema.GroupVersion{Group: GroupName, Version: "v1"}
 var SchemeGroupVersionInternal = schema.GroupVersion{Group: GroupName, Version: runtime.APIVersionInternal}
 
 var (
-	localSchemeBuilder = &schedschemev1beta3.SchemeBuilder
+	localSchemeBuilder = &schedconfig.SchemeBuilder
+	AddToScheme        = localSchemeBuilder.AddToScheme
 )
 
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypes(SchemaVersionV1Beta3, &ThunderingHerdSchedulingArgs{})
+	scheme.AddKnownTypes(SchemaVersionV1, &ThunderingHerdSchedulingArgs{})
 	scheme.AddKnownTypes(SchemeGroupVersionInternal, &ThunderingHerdSchedulingArgs{})
 	scheme.AddTypeDefaultingFunc(&ThunderingHerdSchedulingArgs{}, func(obj interface{}) {
 		SetDefaultThunderingHerdArgs(obj.(*ThunderingHerdSchedulingArgs))

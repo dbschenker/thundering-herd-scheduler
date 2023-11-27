@@ -50,7 +50,7 @@ func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*
 		}
 
 		if counter > *t.args.MaxRetries {
-			klog.Warningf("Pod had to wait for > max retries, scheduling it", "pod", klog.KObj(p))
+			klog.Warning("Pod had to wait for > max retries, scheduling it", "pod", klog.KObj(p))
 			return framework.NewStatus(framework.Success), 0
 		}
 
@@ -58,7 +58,7 @@ func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*
 		timeoutSeconds := t.args.TimeoutSeconds
 		waitTime := powInt(*timeoutSeconds, 2) * counter
 
-		klog.Infof("Pod has to wait as there are already more pods not ready then allowed to start parallel on node",
+		klog.Info("Pod has to wait as there are already more pods not ready then allowed to start parallel on node",
 			"pod", klog.KObj(p),
 			"maxParallelStartingPods", *t.args.ParallelStartingPodsPerNode,
 			"notReadyPods", notReadyPods,

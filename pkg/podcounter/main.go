@@ -33,7 +33,7 @@ func (c Counter) CurrentCounter(pod *v1.Pod) int {
 	if strVal, exists := pod.Annotations[Annotation]; exists {
 		val, err := strconv.Atoi(strVal)
 		if err != nil {
-			klog.Error("Failed to parse annotation %s", Annotation, err)
+			klog.Error("Failed to parse annotation", Annotation, err)
 			return 0
 		}
 

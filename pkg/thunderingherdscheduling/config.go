@@ -48,7 +48,7 @@ type ThunderingHerdSchedulingArgs struct {
 }
 
 func (in *ThunderingHerdSchedulingArgs) PrintArgs() {
-	klog.Infof("Configuration")
+	klog.Info("Configuration")
 	klog.Infof("ParallelStartingPodsPerNode=%d", *in.ParallelStartingPodsPerNode)
 	klog.Infof("TimeoutSeconds=%d", *in.TimeoutSeconds)
 	klog.Infof("MaxRetries=%d", *in.MaxRetries)
