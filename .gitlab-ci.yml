@@ -1,5 +1,6 @@
 variables:
   TYPE: app
+  MULTI_ARCH: true
 
 image: golang:1.20
 
