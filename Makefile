@@ -1,6 +1,6 @@
 all: build test
 
-version := v1.27.0-0
+version := v1.28.0-0
 
 build:
 	go build -o bin/thundering-herd-scheduler ./cmd/thundering-herd-scheduler/main.go
@@ -23,7 +23,7 @@ test:
 		go test ./...
 
 docker:
-		docker buildx build -t thundering-herd-scheduler:local --build-arg RELEASE_VERSION=v1.0.0-beta .
+		docker buildx build -t thundering-herd-scheduler:local --load --build-arg RELEASE_VERSION=${version} .
 
 local:
 	bin/thundering-herd-scheduler --config manifests/development/scheduler.yaml
