@@ -45,7 +45,7 @@ jobs:
           `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
 
     - name: Release
-      if: !(contains(github.ref, 'rc'))
+      if: (!(contains(github.ref, 'rc')))
       uses: softprops/action-gh-release@v1
       with:
         files: bin/thundering-herd-scheduler*
