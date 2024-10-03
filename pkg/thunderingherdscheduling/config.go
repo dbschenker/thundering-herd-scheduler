@@ -10,7 +10,12 @@ import (
 func ParseArguments(obj runtime.Object) (*ThunderingHerdSchedulingArgs, error) {
 	conf := &ThunderingHerdSchedulingArgs{}
 	if obj != nil {
-		cfg, ok := obj.(*ThunderingHerdSchedulingArgs)
+		// workaround for wrong type conversion
+		cfgu, ok := obj.(interface{})
+		if !ok {
+			return nil, fmt.Errorf("conversion error, got %T", obj)
+		}
+		cfg, ok := cfgu.(*ThunderingHerdSchedulingArgs)
 		if !ok {
 			return nil, fmt.Errorf("want args to be of type ThunderingHerdSchedulingArgs, got %T", obj)
 		}
