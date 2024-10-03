@@ -10,39 +10,18 @@ jobs:
   build-and-test:
     uses: ./.github/workflows/build.yml
   create-release:
-#    needs:
-#      - docker-build
-#      - build-and-test
+    needs:
+      - docker-build
+      - build-and-test
     runs-on: ubuntu-latest
     steps:
-#    - uses: actions/download-artifact@v3
-#      with:
-#        name: thundering-herd-scheduler-binaries
-#        path: bin
-#    - name: debug list files
-#      run: find .
+    - uses: actions/download-artifact@v3
+      with:
+        name: thundering-herd-scheduler-binaries
+        path: bin
+    - name: debug list files
+      run: find .
 
-#    - name: Draft Release
-#      if: contains(github.ref, 'alpha') || contains(github.ref, 'beta')
-#      uses: softprops/action-gh-release@v1
-#      with:
-#        files: bin/thundering-herd-scheduler*
-#        append_body: true
-#        draft: true
-#        body: |
-#          Build also available as docker image:
-#          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
-#
-#    - name: PreRelease
-#      if: contains(github.ref, 'rc')
-#      uses: softprops/action-gh-release@v1
-#      with:
-#        files: bin/thundering-herd-scheduler*
-#        append_body: true
-#        prerelease: true
-#        body: |
-#          Build also available as docker image:
-#          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
