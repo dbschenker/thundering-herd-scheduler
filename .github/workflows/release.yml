@@ -15,12 +15,12 @@ jobs:
 #      - build-and-test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: thundering-herd-scheduler-binaries
-        path: bin
-    - name: debug list files
-      run: find .
+#    - uses: actions/download-artifact@v3
+#      with:
+#        name: thundering-herd-scheduler-binaries
+#        path: bin
+#    - name: debug list files
+#      run: find .
 
     - name: Draft Release
       if: contains(github.ref, 'alpha') || contains(github.ref, 'beta')
