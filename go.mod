@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/benbjohnson/clock v1.3.5
-	k8s.io/api v0.31.1
-	k8s.io/apimachinery v0.31.1
+	k8s.io/api v0.29.9
+	k8s.io/apimachinery v0.29.9
 	k8s.io/client-go v0.29.9
 	k8s.io/component-base v0.29.9
 	k8s.io/klog/v2 v2.130.1
