@@ -2,7 +2,7 @@ variables:
   TYPE: app
   MULTI_ARCH: "true"
 
-image: golang:1.21
+image: golang:1.20
 
 include:
   - project: shared-scripts/gitlab-ci

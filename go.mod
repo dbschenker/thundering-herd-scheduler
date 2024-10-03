@@ -1,6 +1,6 @@
 module github.com/dbschenker/thundering-herd-scheduler
 
-go 1.21
+go 1.20
 
 require (
 	github.com/benbjohnson/clock v1.3.5

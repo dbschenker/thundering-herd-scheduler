@@ -121,8 +121,8 @@ spec:
       serviceAccountName: thundering-herd-scheduler
       containers:
         - name: thundering-herd-scheduler
-#          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.26.0-rc"
-          image: "thundering-herd-scheduler:local"
+          image: "ghcr.io/dbschenker/thundering-herd-scheduler:v1.29.0-rc0"
+#          image: "thundering-herd-scheduler:local"
           command:
             - /thundering-herd-scheduler
             - --config=/etc/kubernetes/thundering-herd-scheduler/scheduler-config.yaml
