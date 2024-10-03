@@ -26,7 +26,7 @@ jobs:
       with:
         files: bin/thundering-herd-scheduler*
         append_body: true
-        draft: ${{ contains(github.ref, "alpha") or contains(github.ref, "beta") }}
+        draft: ${{ contains(github.ref, "alpha") || contains(github.ref, "beta") }}
         prerelease: ${{ contains(github.ref, "rc") }}
         body: |
           Build also available as docker image:
