@@ -1,6 +1,7 @@
 package thunderingherdscheduling
 
 import (
+	"encoding/json"
 	"fmt"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -10,11 +11,15 @@ import (
 func ParseArguments(obj runtime.Object) (*ThunderingHerdSchedulingArgs, error) {
 	conf := &ThunderingHerdSchedulingArgs{}
 	if obj != nil {
-		cfg, ok := obj.(*ThunderingHerdSchedulingArgs)
+		// workaround for wrong type conversion
+		cfg, ok := obj.(*runtime.Unknown)
 		if !ok {
-			return nil, fmt.Errorf("want args to be of type ThunderingHerdSchedulingArgs, got %T", obj)
+			return nil, fmt.Errorf("conversion error, got %T", obj)
 		}
-		conf = cfg
+		err := json.Unmarshal(cfg.Raw, conf)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	//SetDefaultThunderingHerdArgs(conf)

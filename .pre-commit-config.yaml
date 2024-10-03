@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/norwoodj/helm-docs
-    rev: v1.2.0
+    rev: v1.14.2
     hooks:
       - id: helm-docs
         args:
@@ -12,7 +12,7 @@ repos:
           # A base filename makes it relative to each chart directory found
           - --template-files=README.md.gotmpl
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -21,11 +21,11 @@ repos:
       - id: detect-private-key
       - id: detect-aws-credentials
   - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.17
+    rev: v0.1.23
     hooks:
     - id: helmlint
   - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.0
+    rev: v0.5.1
     hooks:
       - id: go-fmt
         name: Run go fmt against the code

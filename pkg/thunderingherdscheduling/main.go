@@ -75,7 +75,7 @@ func (t *ThunderingHerdScheduling) Name() string {
 	return Name
 }
 
-func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
+func New(_ context.Context, obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
 	args, err := ParseArguments(obj)
 	if err != nil {
 		return nil, err
