@@ -43,7 +43,6 @@ jobs:
 #        body: |
 #          Build also available as docker image:
 #          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
-
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
