@@ -44,8 +44,8 @@ fullnameOverride: ""
 
 # -- Pod annotations
 podAnnotations:
-  prometheus.io/port: "10251"
-  prometheus.io/scheme: http
+  prometheus.io/port: "10259"
+  prometheus.io/scheme: https
   prometheus.io/scrape: "true"
 # -- Pod securoty context
 podSecurityContext: {}
