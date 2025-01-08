@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine as builder
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS builder
 
 ARG RELEASE_VERSION=development
 
@@ -9,7 +9,7 @@ WORKDIR /go/src/github.com/dbschenker/thundering-herd-scheduler
 
 ARG TARGETOS
 ARG TARGETARCH
-ENV LDFLAGS "-X 'main.VERSION=${RELEASE_VERSION}' "
+ENV LDFLAGS="-X 'main.VERSION=${RELEASE_VERSION}' "
 
 COPY . ./
 
