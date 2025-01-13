@@ -82,7 +82,7 @@ jobs:
         run: |
           echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 )" >> $GITHUB_OUTPUT
 
-  chainsaw-e2e:
+  chainsaw-e2e-tests:
     uses: ./.github/workflows/chainsaw.yaml
     needs:
       - docker-build
