@@ -1,4 +1,3 @@
-
 # $schema: https://json.schemastore.org/github-workflow.json
 
 name: chainsaw E2E test
@@ -40,7 +39,6 @@ jobs:
       - name: Check kind cluster install
         run: |
           kubectl version
-          K8S_VERSION
           kubectl wait --for=jsonpath='{.status.phase}'=Running pod --all -A --timeout 120s
           kubectl get pods -A
           kubectl get nodes
