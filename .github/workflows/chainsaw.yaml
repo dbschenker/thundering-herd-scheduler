@@ -22,7 +22,7 @@ jobs:
         id: go
 
       - name: extract kubernetes version
-        if: k8s_version
+        id: k8s_version
         run: echo "k8s_version=$(go list -m -f '{{.Version}}' k8s.io/kubernetes)" >> $GITHUB_OUTPUT
 
       - name: Create kind cluster
