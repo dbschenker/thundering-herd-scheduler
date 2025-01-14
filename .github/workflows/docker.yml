@@ -110,4 +110,5 @@ jobs:
       - docker-build
     strategy:
       matrix:
-        IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag }}"
+        IMAGE_TAG:
+          - "${{ needs.docker-build.outputs.dockerTag }}"
