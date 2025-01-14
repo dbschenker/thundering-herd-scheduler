@@ -86,6 +86,15 @@ jobs:
           echo "[${{ needs.docker-build.outputs.dockerTag }}]"
           echo "[${{ steps.docker-tag.outputs.dockerTag }}]"
 
+  debug:
+    needs:
+      - docker-build
+    steps:
+      - name: debug
+        run: |
+          echo "[${{ needs.docker-build.outputs.dockerTag }}]"
+          echo "[${{ steps.docker-tag.outputs.dockerTag }}]"
+
   chainsaw-e2e-tests:
     uses: ./.github/workflows/chainsaw.yaml
     needs:
