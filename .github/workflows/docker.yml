@@ -83,26 +83,6 @@ jobs:
         id: docker-tag
         run: |
           echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 )" >> $GITHUB_OUTPUT
-      - name: debug
-        run: |
-          echo "[${{ needs.docker-build.outputs.dockerTag }}]"
-          echo "[${{ steps.docker-tag.outputs.dockerTag }}]"
-
-  debug:
-    needs:
-      - docker-build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-    steps:
-      - name: debug
-        run: |
-          echo "[${{ needs.docker-build.outputs.dockerTag }}]"
-          echo "[${{ steps.docker-tag.outputs.dockerTag }}]"
 
   chainsaw-e2e-tests:
     uses: ./.github/workflows/chainsaw.yaml
