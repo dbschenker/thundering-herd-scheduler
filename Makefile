@@ -27,3 +27,8 @@ docker:
 
 local:
 	bin/thundering-herd-scheduler --config manifests/development/scheduler.yaml
+
+kind:
+	echo "{\"kind\": \"Cluster\", \"apiVersion\": \"kind.x-k8s.io/v1alpha4\", \"nodes\":[{\"role\":\"control-plane\", \"image\": \"kindest/node:$(go list -m -f '{{.Version}}' k8s.io/kubernetes)\"}]}" | kind create cluster --config -
+chainsaw:
+	IMAGE_TAG=v1.30.0-0 chainsaw test
