@@ -14,3 +14,4 @@ docs/
 .gitignore
 sonar-project.properties
 LICENSE
+chainsaw/
