@@ -108,5 +108,6 @@ jobs:
     uses: ./.github/workflows/chainsaw.yaml
     needs:
       - docker-build
-    env:
-      IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag }}"
+    strategy:
+      matrix:
+        IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag }}"
