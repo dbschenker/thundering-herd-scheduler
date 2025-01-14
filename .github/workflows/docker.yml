@@ -1,3 +1,4 @@
+# $schema: https://json.schemastore.org/github-workflow.json
 name: Build docker image
 
 on:
@@ -30,6 +31,7 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
+
     outputs:
       dockerTag: ${{ steps.docker-tag.outputs.dockerTag }}
     steps:
@@ -106,6 +108,5 @@ jobs:
     uses: ./.github/workflows/chainsaw.yaml
     needs:
       - docker-build
-    strategy:
-      matrix:
-        IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag }}"
+    env:
+      IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag }}"

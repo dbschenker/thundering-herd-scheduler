@@ -54,6 +54,7 @@ spec:
     - script:
         content: helm list
         timeout: 1m
+
     - get:
         kind: Pod
         apiVersion: v1
