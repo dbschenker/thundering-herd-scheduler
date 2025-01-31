@@ -14,6 +14,22 @@ scheduler:
     maxRetries: 5
   # -- Override --authorization-alwaus-allow-paths command-line parameter
   authorizationAlwaysAllowPaths: "/healthz,/readyz,/livez,/metrics"
+  # -- Override scheduler profiles
+  profilesOverride: []
+#    - schedulerName: thundering-herd-scheduler
+#      plugins:
+#        permit:
+#          enabled:
+#            - name: ThunderingHerdScheduling
+#          disabled:
+#            - name: "*"
+#      pluginConfig:
+#        - name: ThunderingHerdScheduling
+#          args:
+#            parallelStartingPodsPerNode: 3
+#            timeoutSeconds: 5
+#            maxRetries: 5
+
 # -- Thundering-herd-scheduler replica count. By default it is set to 3.
 replicaCount: 3
 
