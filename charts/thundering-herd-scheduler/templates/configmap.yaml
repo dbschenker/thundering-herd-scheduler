@@ -17,6 +17,9 @@ data:
       resourceName: {{ include "thundering-herd-scheduler.fullname" . }}
       resourceNamespace: {{ .Release.Namespace }}
     profiles:
+      {{- if .Values.scheduler.profilesOverride }}
+      {{ toYaml .Values.scheduler.profilesOverride | nindent 6 }}
+      {{- else }}
       - schedulerName: thundering-herd-scheduler
         plugins:
           permit:
@@ -30,3 +33,4 @@ data:
               parallelStartingPodsPerNode: {{ .Values.scheduler.pluginConfig.parallelStartingPodsPerNode }}
               timeoutSeconds: {{ .Values.scheduler.pluginConfig.timeoutSeconds }}
               maxRetries: {{ .Values.scheduler.pluginConfig.maxRetries }}
+      {{- end }}
