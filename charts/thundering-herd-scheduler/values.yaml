@@ -15,7 +15,7 @@ scheduler:
   # -- Override --authorization-alwaus-allow-paths command-line parameter
   authorizationAlwaysAllowPaths: "/healthz,/readyz,/livez,/metrics"
   # -- Override scheduler profiles
-  profilesOverride: {}
+  profilesOverride: []
 #    - schedulerName: thundering-herd-scheduler
 #      plugins:
 #        permit:
