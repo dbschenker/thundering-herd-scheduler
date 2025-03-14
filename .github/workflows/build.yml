@@ -53,7 +53,7 @@ jobs:
       - name: Test
         run: go test ./...
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
           name: thundering-herd-scheduler-binaries
