@@ -56,6 +56,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
-          name: thundering-herd-scheduler-binaries
+          name: thundering-herd-scheduler-${{ matrix.os }}-${{matrix.architecture}}
           path: bin/thundering-herd-scheduler-*
           if-no-files-found: error
