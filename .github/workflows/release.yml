@@ -16,19 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
-      with:
-        name: thundering-herd-scheduler-binaries
-        path: bin
-    - name: debug list files
-      run: find .
+        with:
+          name: thundering-herd-scheduler-binaries
+          path: bin
+      - name: debug list files
+        run: find .
 
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: bin/thundering-herd-scheduler*
-        append_body: true
-        draft: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
-        prerelease: ${{ contains(github.ref, 'rc') }}
-        body: |
-          Build also available as docker image:
-          `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/thundering-herd-scheduler*
+          append_body: true
+          draft: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+          prerelease: ${{ contains(github.ref, 'rc') }}
+          body: |
+            Build also available as docker image:
+            `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
