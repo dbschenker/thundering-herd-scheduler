@@ -52,16 +52,20 @@ func SetDefaultThunderingHerdArgs(args *ThunderingHerdSchedulingArgs) {
 type ThunderingHerdSchedulingArgs struct {
 	meta_v1.TypeMeta
 
-	ParallelStartingPodsPerNode *int `json:"parallelStartingPodsPerNode"`
-	ParallelStartingPodsPerCore *int `json:"parallelStartingPodsPerCore"`
-	TimeoutSeconds              *int `json:"timeoutSeconds"`
-	MaxRetries                  *int `json:"maxRetries"`
+	ParallelStartingPodsPerNode *int     `json:"parallelStartingPodsPerNode"`
+	ParallelStartingPodsPerCore *float64 `json:"parallelStartingPodsPerCore"`
+	TimeoutSeconds              *int     `json:"timeoutSeconds"`
+	MaxRetries                  *int     `json:"maxRetries"`
 }
 
 func (in *ThunderingHerdSchedulingArgs) PrintArgs() {
 	klog.Info("Configuration")
-	klog.Infof("ParallelStartingPodsPerNode=%d", *in.ParallelStartingPodsPerNode)
-	klog.Infof("ParallelStartingPodsPerCore=%d", *in.ParallelStartingPodsPerCore)
+	if in.ParallelStartingPodsPerNode != nil {
+		klog.Infof("ParallelStartingPodsPerNode=%d", *in.ParallelStartingPodsPerNode)
+	}
+	if in.ParallelStartingPodsPerCore != nil {
+		klog.Infof("ParallelStartingPodsPerCore=%f", *in.ParallelStartingPodsPerCore)
+	}
 	klog.Infof("TimeoutSeconds=%d", *in.TimeoutSeconds)
 	klog.Infof("MaxRetries=%d", *in.MaxRetries)
 }

@@ -117,6 +117,14 @@ func (n NodeStateTest) AddSchedulingPod(_ *v1.Pod, _ string) {
 	n.notReadyPods = n.notReadyPods + 1
 }
 
+func (n NodeStateTest) NotReadyPodsAllowedInParallel(podsPerNode *int, podsPerCore *float64, _ string) (int, error) {
+	if podsPerNode != nil {
+		return *podsPerNode, nil
+	}
+
+	return int(*podsPerCore), nil
+}
+
 type PodCounterTest struct {
 	counter   int
 	exception error

@@ -3,7 +3,9 @@ package nodestate
 import (
 	"context"
 	"github.com/benbjohnson/clock"
+	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	testclient "k8s.io/client-go/kubernetes/fake"
@@ -157,4 +159,52 @@ func mockUnhealthyPod(name string, namespace string, uuid string, nodeName strin
 	p.ObjectMeta = objMeta
 
 	return p
+}
+
+func TestCalculateParallelStartingPodsPerCore(t *testing.T) {
+	testcases := []struct {
+		name        string
+		podsPerCore float64
+		cpu         string
+		expected    int
+	}{
+		{
+			name:        "1 pod per core, 2 cores",
+			podsPerCore: 1,
+			cpu:         "2",
+			expected:    2,
+		},
+		{
+			name:        "0.5 pod per core, 2 cores",
+			podsPerCore: 0.5,
+			cpu:         "2",
+			expected:    1,
+		},
+		{
+			name:        "0.4 pod per core, 2 cores",
+			podsPerCore: 0.4,
+			cpu:         "2",
+			expected:    1,
+		},
+		{
+			name:        "0.4 pod per core, 1.6 cores",
+			podsPerCore: 0.4,
+			cpu:         "1600m",
+			expected:    1,
+		},
+		{
+			name:        "0.3 pod per core, 1.6 cores",
+			podsPerCore: 0.3,
+			cpu:         "1600m",
+			expected:    1,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			q := resource.MustParse(tc.cpu)
+			result := calculateParallelStartingPodsPerCore(tc.podsPerCore, &q)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
 }

@@ -4,12 +4,14 @@ go 1.22.12
 
 require (
 	github.com/benbjohnson/clock v1.3.5
+	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.30.8
 	k8s.io/apimachinery v0.30.8
 	k8s.io/client-go v0.30.8
 	k8s.io/component-base v0.30.8
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/kubernetes v1.30.8
+	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6
 )
 
 require (
@@ -70,7 +72,6 @@ require (
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/xiang90/probing v0.0.0-20221125231312-a49e3df8f510 // indirect
 	go.etcd.io/bbolt v1.3.9 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.12 // indirect
@@ -117,7 +118,6 @@ require (
 	k8s.io/kube-scheduler v0.30.8 // indirect
 	k8s.io/kubelet v0.30.8 // indirect
 	k8s.io/mount-utils v0.30.8 // indirect
-	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.30.3 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect

@@ -31,15 +31,15 @@ func TestParseArguments(t *testing.T) {
 		},
 		{
 			name:  "parallelStartingPodsPerCore",
-			input: `{"parallelStartingPodsPerCore": 10}`,
+			input: `{"parallelStartingPodsPerCore": 9.5}`,
 			expected: &ThunderingHerdSchedulingArgs{
-				ParallelStartingPodsPerCore: ptr.To(10),
+				ParallelStartingPodsPerCore: ptr.To(9.5),
 			},
 			errExpected: false,
 		},
 		{
 			name:        "both",
-			input:       `{"parallelStartingPodsPerCore": 10, "parallelStartingPodsPerNode": 5}`,
+			input:       `{"parallelStartingPodsPerCore": 9.5, "parallelStartingPodsPerNode": 5}`,
 			expected:    nil,
 			errExpected: true,
 			errMsg:      "cannot specify parallelStartingPodsPerNode and parallelStartingPodsPerCore at the same time",

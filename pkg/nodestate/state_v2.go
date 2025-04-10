@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/benbjohnson/clock"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"math"
+
 	v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -32,6 +35,22 @@ func internalNewNodeStateV2(client kubernetes.Interface, c clock.Clock) NodeStat
 		lock:          &lock,
 		clock:         c,
 	}
+}
+
+func (n *NodeStateV2) NotReadyPodsAllowedInParallel(parallelStartingPodsPerNode *int, parallelStartingPodsPerCore *float64, nodeName string) (int, error) {
+	if parallelStartingPodsPerNode != nil {
+		return *parallelStartingPodsPerNode, nil
+	}
+
+	node, err := n.client.CoreV1().Nodes().Get(context.TODO(), nodeName, meta_v1.GetOptions{})
+	if err != nil {
+		return -1, fmt.Errorf("node %s can't be queried from api server: %v", nodeName, err)
+	}
+
+	allocatableCpu := node.Status.Allocatable.Cpu()
+	ret := calculateParallelStartingPodsPerCore(*parallelStartingPodsPerCore, allocatableCpu)
+
+	return ret, nil
 }
 
 func (n *NodeStateV2) NotReadyPods(nodeName string) int {
@@ -121,4 +140,13 @@ func isPodReady(pod v1.Pod) bool {
 		}
 	}
 	return false
+}
+
+// regardless of number of cores in order to avoid starvation, at least one node can be scheduled
+func calculateParallelStartingPodsPerCore(podsPerCore float64, cpu *resource.Quantity) int {
+	val := cpu.AsApproximateFloat64() * podsPerCore
+	if val < 1 {
+		return 1
+	}
+	return int(math.Floor(val))
 }
