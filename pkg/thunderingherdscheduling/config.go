@@ -2,6 +2,7 @@ package thunderingherdscheduling
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,13 +23,17 @@ func ParseArguments(obj runtime.Object) (*ThunderingHerdSchedulingArgs, error) {
 		}
 	}
 
+	if conf.ParallelStartingPodsPerCore != nil && conf.ParallelStartingPodsPerNode != nil {
+		return nil, errors.New("cannot specify parallelStartingPodsPerNode and parallelStartingPodsPerCore at the same time")
+	}
+
 	//SetDefaultThunderingHerdArgs(conf)
 	return conf, nil
 }
 
 func SetDefaultThunderingHerdArgs(args *ThunderingHerdSchedulingArgs) {
 
-	if args.ParallelStartingPodsPerNode == nil {
+	if args.ParallelStartingPodsPerNode == nil && args.ParallelStartingPodsPerCore == nil {
 		defaultParallelPods := 3
 		args.ParallelStartingPodsPerNode = &defaultParallelPods
 	}
@@ -48,6 +53,7 @@ type ThunderingHerdSchedulingArgs struct {
 	meta_v1.TypeMeta
 
 	ParallelStartingPodsPerNode *int `json:"parallelStartingPodsPerNode"`
+	ParallelStartingPodsPerCore *int `json:"parallelStartingPodsPerCore"`
 	TimeoutSeconds              *int `json:"timeoutSeconds"`
 	MaxRetries                  *int `json:"maxRetries"`
 }
@@ -55,6 +61,7 @@ type ThunderingHerdSchedulingArgs struct {
 func (in *ThunderingHerdSchedulingArgs) PrintArgs() {
 	klog.Info("Configuration")
 	klog.Infof("ParallelStartingPodsPerNode=%d", *in.ParallelStartingPodsPerNode)
+	klog.Infof("ParallelStartingPodsPerCore=%d", *in.ParallelStartingPodsPerCore)
 	klog.Infof("TimeoutSeconds=%d", *in.TimeoutSeconds)
 	klog.Infof("MaxRetries=%d", *in.MaxRetries)
 }
@@ -82,5 +89,6 @@ func (in *ThunderingHerdSchedulingArgs) DeepCopyInto(out *ThunderingHerdScheduli
 	out.MaxRetries = in.MaxRetries
 	out.TimeoutSeconds = in.TimeoutSeconds
 	out.ParallelStartingPodsPerNode = in.ParallelStartingPodsPerNode
+	out.ParallelStartingPodsPerCore = in.ParallelStartingPodsPerCore
 	return
 }
