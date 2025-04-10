@@ -1,8 +1,6 @@
 module github.com/dbschenker/thundering-herd-scheduler
 
-go 1.22.0
-
-toolchain go1.23.4
+go 1.22.12
 
 require (
 	github.com/benbjohnson/clock v1.3.5
