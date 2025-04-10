@@ -30,7 +30,11 @@ data:
         pluginConfig:
           - name: ThunderingHerdScheduling
             args:
+              {{- if .Values.scheduler.pluginConfig.parallelStartingPodsPerNode }}
               parallelStartingPodsPerNode: {{ .Values.scheduler.pluginConfig.parallelStartingPodsPerNode }}
+              {{- else if .Values.scheduler.pluginConfig.parallelStartingPodsPerCore }}
+              parallelStartingPodsPerNode: {{.Values.scheduler.pluginConfig.parallelStartingPodsPerCore }}
+              {{- end }}
               timeoutSeconds: {{ .Values.scheduler.pluginConfig.timeoutSeconds }}
               maxRetries: {{ .Values.scheduler.pluginConfig.maxRetries }}
       {{- end }}
