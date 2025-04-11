@@ -83,9 +83,6 @@ jobs:
         id: docker-tag
         run: |
           echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
-      - name: output tag - debug
-        run: |
-          echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )"
 
   chainsaw-e2e-tests:
     needs:
@@ -131,9 +128,5 @@ jobs:
 
     - name: Check helm version
       run: helm version
-    - name: debvug
-      run: echo "${{needs.docker-build.outputs.dockerTag}} "
-    - name: debug
-      run: echo "IMAGE_TAG=${IMAGE_TAG}"
     - name: run chainsaw
       run: chainsaw test chainsaw/*
