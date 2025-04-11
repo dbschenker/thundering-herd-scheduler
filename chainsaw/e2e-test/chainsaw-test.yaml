@@ -14,12 +14,12 @@ spec:
   steps:
     - name: Install thundering-herd-scheduler
       try:
-      - description: debug
-        script:
-          content: echo "IMAGE_TAG=${IMAGE_TAG}"
-          env:
-          - name: IMAGE_TAG
-            value: (env('IMAGE_TAG'))
+        - description: debug
+          script:
+            content: echo "IMAGE_TAG=${IMAGE_TAG}"
+            env:
+            - name: IMAGE_TAG
+              value: (env('IMAGE_TAG'))
         - description: Install thundering-herd-scheduler
           script:
             timeout: 2m
