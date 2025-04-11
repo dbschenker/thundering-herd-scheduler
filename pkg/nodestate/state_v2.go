@@ -44,6 +44,7 @@ func (n *NodeStateV2) NotReadyPodsAllowedInParallel(parallelStartingPodsPerNode 
 
 	node, err := n.client.CoreV1().Nodes().Get(context.TODO(), nodeName, meta_v1.GetOptions{})
 	if err != nil {
+		//this should never happen, because if allocatable is not set, 0 is returned
 		return -1, fmt.Errorf("node %s can't be queried from api server: %v", nodeName, err)
 	}
 

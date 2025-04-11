@@ -9,6 +9,7 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	testclient "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/utils/ptr"
 	"testing"
 	"time"
 )
@@ -209,4 +210,97 @@ func TestCalculateParallelStartingPodsPerCore(t *testing.T) {
 	}
 }
 
-//#TODO: add test coverage for NotReadyPodsAllowedInParallel
+func TestNotReadyPodsAllowedInParallel(t *testing.T) {
+	testcases := []struct {
+		name                        string
+		parallelStartingPodsPerNode *int
+		parallelStartingPodsPerCore *float64
+		nodeName                    string
+		nodeAllocatableCPU          *string
+		errExpected                 bool
+		expected                    int
+	}{
+		{
+			name:                        "parallelStartingPodsPerNode",
+			parallelStartingPodsPerNode: ptr.To(11),
+			parallelStartingPodsPerCore: nil,
+			nodeName:                    "node-1",
+			nodeAllocatableCPU:          ptr.To("2"),
+			errExpected:                 false,
+			expected:                    11,
+		},
+		{
+			name:                        "parallelStartingPodsPerCore",
+			parallelStartingPodsPerNode: nil,
+			parallelStartingPodsPerCore: ptr.To(2.0),
+			nodeName:                    "node-1",
+			nodeAllocatableCPU:          ptr.To("2"),
+			errExpected:                 false,
+			expected:                    4,
+		},
+		{
+			name:                        "parallelStartingPodsPerCore-fractions",
+			parallelStartingPodsPerNode: nil,
+			parallelStartingPodsPerCore: ptr.To(2.0),
+			nodeName:                    "node-1",
+			nodeAllocatableCPU:          ptr.To("1600m"),
+			errExpected:                 false,
+			expected:                    3,
+		},
+		{
+			name:                        "no cpu resource",
+			parallelStartingPodsPerNode: nil,
+			parallelStartingPodsPerCore: ptr.To(2.0),
+			nodeName:                    "node-1",
+			nodeAllocatableCPU:          nil,
+			errExpected:                 false,
+			expected:                    1,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			client := testclient.NewSimpleClientset()
+
+			nodes := []v1.Node{
+				mockNode(tc.nodeName, tc.nodeAllocatableCPU),
+			}
+
+			for _, node := range nodes {
+				_, err := client.CoreV1().Nodes().Create(context.TODO(), &node, meta_v1.CreateOptions{})
+				assert.NoError(t, err)
+			}
+			n := &NodeStateV2{
+				client: client,
+			}
+
+			result, err := n.NotReadyPodsAllowedInParallel(tc.parallelStartingPodsPerNode, tc.parallelStartingPodsPerCore, tc.nodeName)
+			if tc.errExpected {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func mockNode(nodeName string, allocatableCPU *string) v1.Node {
+	ret := v1.Node{
+		TypeMeta: meta_v1.TypeMeta{
+			Kind:       "Node",
+			APIVersion: "v1",
+		},
+		ObjectMeta: meta_v1.ObjectMeta{
+			Name: nodeName,
+		},
+		Spec:   v1.NodeSpec{},
+		Status: v1.NodeStatus{},
+	}
+	if allocatableCPU != nil {
+		ret.Status.Allocatable = v1.ResourceList{
+			v1.ResourceCPU: resource.MustParse(*allocatableCPU),
+		}
+	}
+	return ret
+}

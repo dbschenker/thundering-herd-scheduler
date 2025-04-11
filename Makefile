@@ -23,7 +23,7 @@ test:
 		go test ./...
 
 docker:
-		docker buildx build -t thundering-herd-scheduler:local --load --build-arg RELEASE_VERSION=${version} .
+		docker buildx build -t thundering-herd-scheduler:local -t thundering-herd-scheduler:${version} --load --build-arg RELEASE_VERSION=${version} .
 
 local:
 	bin/thundering-herd-scheduler --config manifests/development/scheduler.yaml
@@ -31,5 +31,6 @@ local:
 kind:
 	kind create cluster --config manifests/development/kind-config.yaml
 	kind get kubeconfig > deployment/config
-chainsaw:
-	IMAGE_TAG=v1.30.0-0 chainsaw test
+e2e-test:
+	kind load docker-image thundering-herd-scheduler:${version}
+	IMAGE_TAG=${version} chainsaw test
