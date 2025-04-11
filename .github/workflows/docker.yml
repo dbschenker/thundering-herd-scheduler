@@ -10,11 +10,6 @@ on:
       - '/*.md'
     branches:
       - '*'
-  pull_request:
-    paths-ignore:
-      - 'charts/**'
-      - 'docs/**'
-      - '/*.md'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
@@ -76,7 +71,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,darwin/arm64,darwin/amd64
-          build-args: ${{ github.event_name == 'push' && github.ref_type == 'tag' && format('RELEASE_VERSION={0}', github.ref_name) || '' }}
+          build-args: ${{ github.event_name == 'push' && github.ref_type == 'tag' && format('RELEASE_VERSION={0}', github.ref_name) }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: ${{ format( 'type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME ) || '' }}
       - name: output tag
