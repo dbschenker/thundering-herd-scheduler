@@ -41,7 +41,15 @@ func (t *ThunderingHerdScheduling) Permit(_ context.Context, _ *framework.CycleS
 func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*framework.Status, time.Duration) {
 	notReadyPods := t.nodestate.NotReadyPods(nodeName)
 
-	if notReadyPods >= *t.args.ParallelStartingPodsPerNode {
+	maxAllowedStartingPods, err := t.nodestate.NotReadyPodsAllowedInParallel(t.args.ParallelStartingPodsPerNode, t.args.ParallelStartingPodsPerCore, nodeName)
+
+	klog.Infof("Node %s is allowed to start %d pods in parallel", nodeName, maxAllowedStartingPods)
+
+	if err != nil {
+		return framework.NewStatus(framework.Error, err.Error()), 0
+	}
+
+	if notReadyPods >= maxAllowedStartingPods {
 		counter, err := t.counter.IncrementCounter(p)
 		if err != nil {
 			// to prevent any kind of issue with the scheduler
@@ -60,7 +68,7 @@ func (t *ThunderingHerdScheduling) PermitInternal(p *v1.Pod, nodeName string) (*
 
 		klog.Info("Pod has to wait as there are already more pods not ready then allowed to start parallel on node",
 			"pod", klog.KObj(p),
-			"maxParallelStartingPods", *t.args.ParallelStartingPodsPerNode,
+			"maxAllowedStartingPods", maxAllowedStartingPods,
 			"notReadyPods", notReadyPods,
 			"nodeName", nodeName,
 			"waitTime", waitTime)

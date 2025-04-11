@@ -7,7 +7,9 @@ scheduler:
   burst: 60
   pluginConfig:
     # -- How many pods should get scheduled in parallel before pods are moved into waiting state
-    parallelStartingPodsPerNode: 3
+    parallelStartingPodsPerNode: null
+    # -- How many pods should get scheduled in parallel per allocatable core before pods are moved into waiting state
+    parallelStartingPodsPerCore: 0.67
     # -- Based on how many times the pod was attempted to be scheduled using the scheduler, a wait is implemented with the following rule timeoutSeconds^2 * retries
     timeoutSeconds: 5
     # -- How many times a pod can run through the process before it anyway get's scheduled

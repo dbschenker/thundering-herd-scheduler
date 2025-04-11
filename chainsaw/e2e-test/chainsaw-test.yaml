@@ -66,6 +66,8 @@ spec:
         kind: Deployment
         apiVersion: apps/v1
     - events: {}
+    - events:
+        namespace: kube-system
     - podLogs:
         timeout: 30s
         tail: 200

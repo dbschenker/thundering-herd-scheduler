@@ -7,84 +7,194 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
+	"k8s.io/utils/ptr"
 	"sync"
 	"testing"
 	"time"
 )
 
 func TestShouldScheduleDirectlyAsThereAreNoUnreadyPods(t *testing.T) {
-	scheduler := getTestingScheduler(0, 0)
-	state := &framework.CycleState{}
-	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
-
-	resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
-
-	if resp.Code() != framework.Success {
-		t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
 	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(0, 0, tc.limitPerCores)
+			state := &framework.CycleState{}
+			pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+
+			resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
+
+			if resp.Code() != framework.Success {
+				t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+			}
+		})
+	}
+
 }
 
 func TestShouldScheduleDirectlyAsRetryCountExceeded(t *testing.T) {
-	scheduler := getTestingScheduler(5, 6)
-	state := &framework.CycleState{}
-	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
+	}
 
-	resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
-	if resp.Code() != framework.Success {
-		t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(5, 6, tc.limitPerCores)
+			state := &framework.CycleState{}
+			pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+
+			resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
+			if resp.Code() != framework.Success {
+				t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+			}
+		})
 	}
 }
 
 func TestShouldReturnWaitWhenTooManyNotReadyPodsAreInPlace(t *testing.T) {
-	scheduler := getTestingScheduler(0, 6)
-	state := &framework.CycleState{}
-	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
-
-	resp, waitTime := scheduler.Permit(context.TODO(), state, &pod, "test-node")
-	if resp.Code() != framework.Wait {
-		t.Errorf("Failed to schedule pod, expected response code Wait, but got %s", resp.Code())
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
 	}
 
-	if waitTime != 25*time.Second {
-		t.Errorf("Scheduler returned wrong waitTime, expected 25 seconds, but got %f", waitTime.Seconds())
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(0, 6, tc.limitPerCores)
+			state := &framework.CycleState{}
+			pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+
+			resp, waitTime := scheduler.Permit(context.TODO(), state, &pod, "test-node")
+			if resp.Code() != framework.Wait {
+				t.Errorf("Failed to schedule pod, expected response code Wait, but got %s", resp.Code())
+			}
+
+			if waitTime != 25*time.Second {
+				t.Errorf("Scheduler returned wrong waitTime, expected 25 seconds, but got %f", waitTime.Seconds())
+			}
+		})
 	}
 }
 
 func TestShouldReturnWaitBasedOnRetry(t *testing.T) {
-	scheduler := getTestingScheduler(1, 6)
-	state := &framework.CycleState{}
-	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
+	}
 
-	_, waitTime := scheduler.Permit(context.TODO(), state, &pod, "test-node")
-	if waitTime != 50*time.Second {
-		t.Errorf("Scheduler returned wrong waitTime, expected 50 seconds, but got %f", waitTime.Seconds())
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(1, 6, tc.limitPerCores)
+			state := &framework.CycleState{}
+			pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+
+			_, waitTime := scheduler.Permit(context.TODO(), state, &pod, "test-node")
+			if waitTime != 50*time.Second {
+				t.Errorf("Scheduler returned wrong waitTime, expected 50 seconds, but got %f", waitTime.Seconds())
+			}
+		})
 	}
 }
 
 func TestShedulerShouldContinueIfCounterFails(t *testing.T) {
-	scheduler := getTestingScheduler(1, 6)
-	scheduler.counter = PodCounterTest{
-		counter:   1,
-		exception: errors.New("testerror occured"),
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
 	}
-	state := &framework.CycleState{}
-	pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
 
-	resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
-	if resp.Code() != framework.Success {
-		t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(1, 6, tc.limitPerCores)
+			scheduler.counter = PodCounterTest{
+				counter:   1,
+				exception: errors.New("testerror occured"),
+			}
+			state := &framework.CycleState{}
+			pod := getStartingPod("test-pod", "test-namespace", "uuid", true)
+
+			resp, _ := scheduler.Permit(context.TODO(), state, &pod, "test-node")
+			if resp.Code() != framework.Success {
+				t.Errorf("Failed to schedule pod, expected response code Success, but got %s", resp.Code())
+			}
+		})
 	}
 }
 
 func TestFulfillmentOfInterface(t *testing.T) {
-	scheduler := getTestingScheduler(1, 6)
+	testcases := []struct {
+		name          string
+		limitPerCores bool
+	}{
+		{
+			name:          "LimitPerCore",
+			limitPerCores: true,
+		},
+		{
+			name:          "LimitPerNode",
+			limitPerCores: false,
+		},
+	}
 
-	if scheduler.Name() != "ThunderingHerdScheduling" {
-		t.Errorf("Expected Scheduler to return ThunderingHerdScheduling as name, but got %s", scheduler.Name())
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			scheduler := getTestingScheduler(1, 6, tc.limitPerCores)
+
+			if scheduler.Name() != "ThunderingHerdScheduling" {
+				t.Errorf("Expected Scheduler to return ThunderingHerdScheduling as name, but got %s", scheduler.Name())
+			}
+		})
 	}
 }
 
-func getTestingScheduler(retryCounter int, notReadyPods int) *ThunderingHerdScheduling {
+func getTestingScheduler(retryCounter int, notReadyPods int, limitPerCores bool) *ThunderingHerdScheduling {
 	var m sync.Mutex
 	counter := PodCounterTest{
 		counter: retryCounter,
@@ -94,7 +204,10 @@ func getTestingScheduler(retryCounter int, notReadyPods int) *ThunderingHerdSche
 	}
 	args := &ThunderingHerdSchedulingArgs{}
 	SetDefaultThunderingHerdArgs(args)
-
+	if !limitPerCores {
+		args.ParallelStartingPodsPerNode = ptr.To(3)
+		args.ParallelStartingPodsPerCore = nil
+	}
 	scheduler := &ThunderingHerdScheduling{
 		counter:   counter,
 		args:      args,
@@ -115,6 +228,14 @@ func (n NodeStateTest) NotReadyPods(_ string) int {
 
 func (n NodeStateTest) AddSchedulingPod(_ *v1.Pod, _ string) {
 	n.notReadyPods = n.notReadyPods + 1
+}
+
+func (n NodeStateTest) NotReadyPodsAllowedInParallel(podsPerNode *int, podsPerCore *float64, _ string) (int, error) {
+	if podsPerNode != nil {
+		return *podsPerNode, nil
+	}
+
+	return int(*podsPerCore), nil
 }
 
 type PodCounterTest struct {
@@ -160,3 +281,5 @@ func getStartingPod(name string, namespace string, uuid string, container bool) 
 
 	return p
 }
+
+//#TODO: implement tests to cover both paths of configuration
