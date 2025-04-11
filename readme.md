@@ -54,8 +54,8 @@ It's possible to further configure the Scheduler behavior based on arguments. Th
 
 | Property                      | Default | Description                                                                                                                                                   |
 |-------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `parallelStartingPodsPerNode` | `3`     | How many pods should get scheduled in parallel before pods are moved into waiting state                                                                       |
-| `parallelStartingPodsPerCore` | nil     | How many pods should get scheduled in parallel per core before pods are moved into waiting state                                                              |
+| `parallelStartingPodsPerNode` | `nil`   | How many pods should get scheduled in parallel before pods are moved into waiting state                                                                       |
+| `parallelStartingPodsPerCore` | `1.0`   | How many pods should get scheduled in parallel per core before pods are moved into waiting state                                                              |
 | `timeoutSeconds`              | `5`     | Based on how many times the pod was attempted to be scheduled using the scheduler, a wait is implemented with the following rule `timeoutSeconds^2 * retries` |
 | `maxRetries`                  | `5`     | How many times a pod can run through the process before it anyway get's scheduled                                                                             |
 

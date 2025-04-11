@@ -208,3 +208,5 @@ func TestCalculateParallelStartingPodsPerCore(t *testing.T) {
 		})
 	}
 }
+
+//#TODO: add test coverage for NotReadyPodsAllowedInParallel

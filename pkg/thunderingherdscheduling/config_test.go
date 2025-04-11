@@ -68,3 +68,52 @@ func TestParseArguments(t *testing.T) {
 		})
 	}
 }
+
+func TestSetDefaultThunderingHerdArgs(t *testing.T) {
+	testcases := []struct {
+		name     string
+		input    *ThunderingHerdSchedulingArgs
+		expected *ThunderingHerdSchedulingArgs
+	}{
+		{
+			name:  "nothing is set",
+			input: &ThunderingHerdSchedulingArgs{},
+			expected: &ThunderingHerdSchedulingArgs{
+				ParallelStartingPodsPerCore: ptr.To(1.0),
+				TimeoutSeconds:              ptr.To(5),
+				MaxRetries:                  ptr.To(5),
+			},
+		},
+		{
+			name: "all is set",
+			input: &ThunderingHerdSchedulingArgs{
+				ParallelStartingPodsPerCore: ptr.To(2.0),
+				TimeoutSeconds:              ptr.To(3),
+				MaxRetries:                  ptr.To(4),
+			},
+			expected: &ThunderingHerdSchedulingArgs{
+				ParallelStartingPodsPerCore: ptr.To(2.0),
+				TimeoutSeconds:              ptr.To(3),
+				MaxRetries:                  ptr.To(4),
+			},
+		},
+		{
+			name: "ParallelStartingPodsPerNode is set",
+			input: &ThunderingHerdSchedulingArgs{
+				ParallelStartingPodsPerNode: ptr.To(11),
+			},
+			expected: &ThunderingHerdSchedulingArgs{
+				ParallelStartingPodsPerNode: ptr.To(11),
+				ParallelStartingPodsPerCore: nil,
+				TimeoutSeconds:              ptr.To(5),
+				MaxRetries:                  ptr.To(5),
+			},
+		},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			SetDefaultThunderingHerdArgs(tc.input)
+			assert.Equal(t, tc.expected, tc.input)
+		})
+	}
+}

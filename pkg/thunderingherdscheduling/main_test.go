@@ -168,3 +168,5 @@ func getStartingPod(name string, namespace string, uuid string, container bool) 
 
 	return p
 }
+
+//#TODO: implement tests to cover both paths of configuration

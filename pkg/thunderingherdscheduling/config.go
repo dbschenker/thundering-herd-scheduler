@@ -34,8 +34,8 @@ func ParseArguments(obj runtime.Object) (*ThunderingHerdSchedulingArgs, error) {
 func SetDefaultThunderingHerdArgs(args *ThunderingHerdSchedulingArgs) {
 
 	if args.ParallelStartingPodsPerNode == nil && args.ParallelStartingPodsPerCore == nil {
-		defaultParallelPods := 3
-		args.ParallelStartingPodsPerNode = &defaultParallelPods
+		defaultParallelPodsPerCore := 1.0
+		args.ParallelStartingPodsPerCore = &defaultParallelPodsPerCore
 	}
 
 	if args.TimeoutSeconds == nil {
