@@ -45,6 +45,8 @@ jobs:
 
       - name: Check helm version
         run: helm version
+      - name: debvug
+        run: echo "${{matrix.IMAGE_TAG}} "
       - name: debug
         run: echo "IMAGE_TAG=${IMAGE_TAG}"
       - name: run chainsaw
