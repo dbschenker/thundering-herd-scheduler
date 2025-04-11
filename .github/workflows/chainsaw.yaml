@@ -45,6 +45,7 @@ jobs:
 
       - name: Check helm version
         run: helm version
-
+      - name: debug
+        run: echo "IMAGE_TAG=${IMAGE_TAG}"
       - name: run chainsaw
         run: chainsaw test chainsaw/*
