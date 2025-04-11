@@ -127,5 +127,6 @@ Versions are tagged with `v{{ KUBERNETES_MAIN_VERSION }}-{{ SEQUENTIAL_THUNDERIN
 SEQUENTIAL_THUNDERING_PLUGIN_RELEASE is counted per KUBERNETES_MAIN_VERSION separately.
 For example v1.30.0-1 is 2nd version based on kubernetes 1.30.x.
 
-> **_NOTE:_**  Breaking changes can be introduced by each release. Please check Release notes for details.
+> **NOTE!**  
+> Breaking changes can be introduced by each release. Please check Release notes for details.
 
