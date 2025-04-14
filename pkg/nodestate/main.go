@@ -7,4 +7,5 @@ import (
 type NodeStateInterface interface {
 	NotReadyPods(nodeName string) int
 	AddSchedulingPod(pod *v1.Pod, nodeName string)
+	NotReadyPodsAllowedInParallel(*int, *float64, string) (int, error)
 }

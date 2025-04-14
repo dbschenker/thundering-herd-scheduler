@@ -10,11 +10,6 @@ on:
       - '/*.md'
     branches:
       - '*'
-  pull_request:
-    paths-ignore:
-      - 'charts/**'
-      - 'docs/**'
-      - '/*.md'
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
@@ -45,7 +40,7 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
+        #        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -72,23 +67,54 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,darwin/arm64,darwin/amd64
-          build-args: ${{ github.event_name == 'push' && github.ref_type == 'tag' && format('RELEASE_VERSION={0}', github.ref_name) || '' }}
+          build-args: ${{ github.event_name == 'push' && github.ref_type == 'tag' && format('RELEASE_VERSION={0}', github.ref_name) }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: ${{ github.event_name != 'pull_request' && format( 'type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME ) || '' }}
+          cache-to: ${{ format( 'type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME ) || '' }}
       - name: output tag
         id: docker-tag
         run: |
           echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
 
   chainsaw-e2e-tests:
-    uses: ./.github/workflows/chainsaw.yaml
     needs:
       - docker-build
-    strategy:
-      matrix:
-        IMAGE_TAG:
-          - "${{ needs.docker-build.outputs.dockerTag }}"
+    name: Chainsaw E2E test
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: "${{ needs.docker-build.outputs.dockerTag}}"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Chainsaw
+      uses: kyverno/action-install-chainsaw@v0.2.12
+    - name: Check chainsaw install
+      run: chainsaw version
+
+    - name: extract kubernetes version
+      id: k8s_version
+      run: echo "k8s_version=$(go list -m -f '{{.Version}}' k8s.io/kubernetes)" >> $GITHUB_OUTPUT
+
+    - name: Create kind cluster
+      uses: helm/kind-action@v1
+      with:
+        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
+
+    - name: Install helm
+      uses: azure/setup-helm@v4
+    - name: Check helm version
+      run: helm version
+
+    - name: Check kind cluster install
+      run: |
+        kubectl version
+        kubectl wait --for=jsonpath='{.status.phase}'=Running pod --all -A --timeout 120s
+        kubectl get pods -A
+        kubectl get nodes
+
+    - name: run chainsaw
+      run: chainsaw test chainsaw/*

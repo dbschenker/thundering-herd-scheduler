@@ -43,7 +43,7 @@ profiles:
     pluginConfig:
       - name: ThunderingHerdScheduling
         args:
-          parallelStartingPodsPerNode: 3
+          parallelStartingPodsPerCore: 0.6 #this means 1.5 core is needed for 1 pod
           timeoutSeconds: 5
           maxRetries: 5
 ```
@@ -52,11 +52,12 @@ The yaml registers a new scheduler named `thundering-herd-scheduler` which follo
 
 It's possible to further configure the Scheduler behavior based on arguments. The provided values are the defaults:
 
-| Property                    | Default | Description                                                                                                                                                 |
-|-----------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `parallelStartingPodsPerNode` | `3`       | How many pods should get scheduled in parallel before pods are moved into waiting state                                                                     |
-| `timeoutSeconds`              | `5`       | Based on how many times the pod was attempted to be scheduled using the scheduler, a wait is implemented with the following rule `timeoutSeconds^2 * retries` |
-| `maxRetries`                  | `5`       | How many times a pod can run through the process before it anyway get's scheduled                                                                           |
+| Property                      | Default | Description                                                                                                                                                   |
+|-------------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parallelStartingPodsPerNode` | `nil`   | How many pods should get scheduled in parallel before pods are moved into waiting state                                                                       |
+| `parallelStartingPodsPerCore` | `1.0`   | How many pods should get scheduled in parallel per core before pods are moved into waiting state                                                              |
+| `timeoutSeconds`              | `5`     | Based on how many times the pod was attempted to be scheduled using the scheduler, a wait is implemented with the following rule `timeoutSeconds^2 * retries` |
+| `maxRetries`                  | `5`     | How many times a pod can run through the process before it anyway get's scheduled                                                                             |
 
 
 ## Scheduler Deployment
@@ -118,3 +119,14 @@ spec:
         initialDelaySeconds: 5
         periodSeconds: 10
 ```
+
+## Versioning
+
+This project is not fully following semantic versioning as it depends on upstream releases of kubernetes.
+Versions are tagged with `v{{ KUBERNETES_MAIN_VERSION }}-{{ SEQUENTIAL_THUNDERING_PLUGIN_RELEASE }}`.
+SEQUENTIAL_THUNDERING_PLUGIN_RELEASE is counted per KUBERNETES_MAIN_VERSION separately.
+For example v1.30.0-1 is 2nd version based on kubernetes 1.30.x.
+
+> **NOTE!**  
+> Breaking changes can be introduced by each release. Please check Release notes for details.
+

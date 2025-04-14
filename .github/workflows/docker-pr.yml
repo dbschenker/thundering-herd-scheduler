@@ -1,0 +1,113 @@
+# $schema: https://json.schemastore.org/github-workflow.json
+name: Build docker image
+
+on:
+  workflow_call:
+  pull_request:
+    paths-ignore:
+    - 'charts/**'
+    - 'docs/**'
+    - '/*.md'
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  docker-build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    outputs:
+      dockerTag: ${{ steps.docker-tag.outputs.dockerTag }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Workaround: https://github.com/docker/build-push-action/issues/461
+    - name: Setup Docker buildx
+      uses: docker/setup-buildx-action@v3
+
+    # Login against a Docker registry except on PR
+    # https://github.com/docker/login-action
+    - name: Log into registry ${{ env.REGISTRY }}
+      #        if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Extract metadata (tags, labels) for Docker
+    # https://github.com/docker/metadata-action
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+          type=ref,event=tag
+          type=ref,event=branch
+          type=ref,event=pr
+
+    # Build and push Docker image with Buildx (don't push on PR)
+    # https://github.com/docker/build-push-action
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        load: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64
+        build-args: ''
+        cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+    - name: output tag
+      id: docker-tag
+      run: |
+        echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Chainsaw
+      uses: kyverno/action-install-chainsaw@v0.2.12
+    - name: Check chainsaw install
+      run: chainsaw version
+
+    - name: extract kubernetes version
+      id: k8s_version
+      run: echo "k8s_version=$(go list -m -f '{{.Version}}' k8s.io/kubernetes)" >> $GITHUB_OUTPUT
+
+    - name: Create kind cluster
+      uses: helm/kind-action@v1
+      with:
+        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
+        cluster_name: kind
+
+    - name: Check kind cluster install
+      run: |
+        kubectl version
+        kubectl wait --for=jsonpath='{.status.phase}'=Running pod --all -A --timeout 120s
+        kubectl get pods -A
+        kubectl get nodes
+
+    - name: Install helm
+      uses: azure/setup-helm@v4
+    - name: Check helm version
+      run: helm version
+
+    - name: Load image to kind cluster
+      run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
+
+    - name: run chainsaw
+      env:
+        IMAGE_TAG: ${{ steps.docker-tag.outputs.dockerTag}}
+      run: chainsaw test chainsaw/*
