@@ -77,4 +77,39 @@ jobs:
       run: |
         echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
 
+    - name: Checkout code
+      uses: actions/checkout@v4
 
+    - name: Install Chainsaw
+      uses: kyverno/action-install-chainsaw@v0.2.12
+
+    - name: extract kubernetes version
+      id: k8s_version
+      run: echo "k8s_version=$(go list -m -f '{{.Version}}' k8s.io/kubernetes)" >> $GITHUB_OUTPUT
+
+    - name: Create kind cluster
+      uses: helm/kind-action@v1
+      with:
+        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
+
+    - name: Install helm
+      uses: azure/setup-helm@v4
+
+    - name: Check chainsaw install
+      run: chainsaw version
+
+    - name: Check kind cluster install
+      run: |
+        kubectl version
+        kubectl wait --for=jsonpath='{.status.phase}'=Running pod --all -A --timeout 120s
+        kubectl get pods -A
+        kubectl get nodes
+
+    - name: Check helm version
+      run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
+    - name: Check helm version
+      run: helm version
+    - name: run chainsaw
+      env:
+        IMAGE_TAG: ${{ steps.docker-tag.outputs.dockerTag}}
+      run: chainsaw test chainsaw/*
