@@ -92,12 +92,8 @@ jobs:
 
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version-file: './go.mod'
-      id: go
+    - name: Check chainsaw install
+      run: chainsaw version
 
     - name: extract kubernetes version
       id: k8s_version
@@ -110,9 +106,8 @@ jobs:
 
     - name: Install helm
       uses: azure/setup-helm@v4
-
-    - name: Check chainsaw install
-      run: chainsaw version
+    - name: Check helm version
+      run: helm version
 
     - name: Check kind cluster install
       run: |
@@ -121,7 +116,5 @@ jobs:
         kubectl get pods -A
         kubectl get nodes
 
-    - name: Check helm version
-      run: helm version
     - name: run chainsaw
       run: chainsaw test chainsaw/*
