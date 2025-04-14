@@ -20,10 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
+      packages: read
 
     outputs:
       dockerTag: ${{ steps.docker-tag.outputs.dockerTag }}
@@ -82,6 +79,8 @@ jobs:
 
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
+    - name: Check chainsaw install
+      run: chainsaw version
 
     - name: extract kubernetes version
       id: k8s_version
@@ -91,13 +90,6 @@ jobs:
       uses: helm/kind-action@v1
       with:
         node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
-
-    - name: Install helm
-      uses: azure/setup-helm@v4
-
-    - name: Check chainsaw install
-      run: chainsaw version
-
     - name: Check kind cluster install
       run: |
         kubectl version
@@ -105,10 +97,14 @@ jobs:
         kubectl get pods -A
         kubectl get nodes
 
-    - name: Check helm version
-      run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
+    - name: Install helm
+      uses: azure/setup-helm@v4
     - name: Check helm version
       run: helm version
+
+    - name: Load image to kind cluster
+      run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
+
     - name: run chainsaw
       env:
         IMAGE_TAG: ${{ steps.docker-tag.outputs.dockerTag}}
