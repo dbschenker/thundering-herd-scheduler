@@ -103,9 +103,6 @@ jobs:
     - name: Check helm version
       run: helm version
 
-    - name: debug
-      run: docker images
-
     - name: Load image to kind cluster
       run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
 
