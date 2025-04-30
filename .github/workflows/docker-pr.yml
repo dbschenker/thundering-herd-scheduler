@@ -74,9 +74,6 @@ jobs:
       run: |
         echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
 
-    - name: Checkout code
-      uses: actions/checkout@v4
-
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
     - name: Check chainsaw install
@@ -104,6 +101,9 @@ jobs:
       uses: azure/setup-helm@v4
     - name: Check helm version
       run: helm version
+
+    - name: debug
+      run: docker images
 
     - name: Load image to kind cluster
       run: kind load docker-image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.docker-tag.outputs.dockerTag}}
