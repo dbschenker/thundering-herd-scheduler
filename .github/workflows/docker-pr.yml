@@ -89,6 +89,7 @@ jobs:
         node_image: "kindest/node:v1.31.6"
         #        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
         cluster_name: kind
+        version: v0.27.0
 
     - name: Check kind cluster install
       run: |
