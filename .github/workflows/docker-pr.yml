@@ -74,9 +74,6 @@ jobs:
       run: |
         echo "dockerTag=$( echo "${{ steps.meta.outputs.tags }}" | cut -d ',' -f 1 | cut -d ':' -f 2 | head -n 1 )" >> $GITHUB_OUTPUT
 
-    - name: Checkout code
-      uses: actions/checkout@v4
-
     - name: Install Chainsaw
       uses: kyverno/action-install-chainsaw@v0.2.12
     - name: Check chainsaw install
@@ -89,8 +86,10 @@ jobs:
     - name: Create kind cluster
       uses: helm/kind-action@v1
       with:
-        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
+        node_image: "kindest/node:v1.31.6" # FIXME there was no image for 1.31.8
+        #        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
         cluster_name: kind
+        version: v0.27.0
 
     - name: Check kind cluster install
       run: |

@@ -1,6 +1,6 @@
 all: build test
 
-version := v1.30.0-0
+version := v1.31.0-0
 
 build:
 	go build -o bin/thundering-herd-scheduler ./cmd/thundering-herd-scheduler/main.go
@@ -23,7 +23,7 @@ test:
 		go test ./...
 
 docker:
-		docker buildx build -t thundering-herd-scheduler:local -t thundering-herd-scheduler:${version} --load --build-arg RELEASE_VERSION=${version} .
+		docker buildx build -t thundering-herd-scheduler:local -t thundering-herd-scheduler:${version} -t ghcr.io/dbschenker/thundering-herd-scheduler:${version} --load --build-arg RELEASE_VERSION=${version} .
 
 local:
 	bin/thundering-herd-scheduler --config manifests/development/scheduler.yaml
@@ -32,5 +32,5 @@ kind:
 	kind create cluster --config manifests/development/kind-config.yaml
 	kind get kubeconfig > deployment/config
 e2e-test:
-	kind load docker-image thundering-herd-scheduler:${version}
+	kind load docker-image ghcr.io/dbschenker/thundering-herd-scheduler:${version}
 	IMAGE_TAG=${version} chainsaw test
