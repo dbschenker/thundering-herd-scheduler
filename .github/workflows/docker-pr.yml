@@ -89,7 +89,8 @@ jobs:
     - name: Create kind cluster
       uses: helm/kind-action@v1
       with:
-        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
+        node_image: "kindest/node:v1.31.6"
+        #        node_image: "kindest/node:${{ steps.k8s_version.outputs.k8s_version }}"
         cluster_name: kind
 
     - name: Check kind cluster install
