@@ -1,5 +1,12 @@
 # Thundering Herd Scheduler
 
+## Depreaction notice
+
+Thundering-herd-scheduler is no longer maintained and will be archivised.
+If you still need its functionalities feel free to fork it and maintain fork on your own.
+
+## Overview
+
 The Thundering Herd Scheduler is intended to solve a problem where multiple pods start in parallel on a node and cause high CPU usage during initialization.
 
 Such problems typically occur on Spring Boot applications that during startup consume up to two or three CPU cores and afterwards idle around 0.1-0.5 CPU cores.
